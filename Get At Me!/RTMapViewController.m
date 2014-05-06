@@ -14,12 +14,12 @@
 @interface RTMapViewController () <MKMapViewDelegate, CLLocationManagerDelegate, MFMessageComposeViewControllerDelegate>
 
 @property (weak, nonatomic) IBOutlet UIView *popupView;
+@property (strong, nonatomic) UIView *snapshot;
+
 @property (nonatomic) BOOL firstZoomAnimationDone;
 @property (weak, nonatomic) IBOutlet MKMapView *appleMapView;
 @property (nonatomic, strong) CLLocationManager *locManager;
 @property (nonatomic, strong) CLLocation *myCurrentLoc;
-@property (nonatomic, strong) UILabel *statusLabel;
-@property (nonatomic, strong) NSArray *reverseGeocodeResults;
 @property (weak, nonatomic) IBOutlet UIToolbar *toolbar;
 @property (weak, nonatomic) IBOutlet UISwitch *mapSnapSwitch;
 @property (weak, nonatomic) IBOutlet UIBarButtonItem *popupButton;
@@ -37,9 +37,6 @@
     
     //configure map view
     _myCurrentLoc = [CLLocation new];
-    _appleMapView.showsBuildings = YES;
-    _appleMapView.showsPointsOfInterest = YES;
-    _appleMapView.showsUserLocation = YES;
     
     //configure location manager
     _locManager = [CLLocationManager new];
@@ -48,8 +45,14 @@
     [_locManager startUpdatingLocation];
     
     [self.view bringSubviewToFront:_toolbar];
-    _popupView.alpha = 0.0;
+    
+    _snapshot = [_popupView snapshotViewAfterScreenUpdates:NO];
+    _snapshot.frame = _popupView.frame;
+    [self.view addSubview:_snapshot];
+    [self.view bringSubviewToFront:_snapshot];
+    _snapshot.frame = POPUP_HIDE_FRAME;
     _popupView.hidden = YES;
+    _snapshot.hidden = YES;
 }
 
 - (IBAction)cameraButtonPressed:(id)sender {
@@ -62,62 +65,83 @@
 
 -(void)popupShow
 {
-    
-    
-    
     _popupButton.enabled = NO;
-    _popupView.hidden = NO;
-    _popupView.frame = POPUP_HIDE_FRAME;
+    _snapshot.hidden = NO;
+    [self.view bringSubviewToFront:_snapshot];
     [UIView animateWithDuration:0.3 animations:^{
-        _popupView.frame = POPUP_SHOW_FRAME;
-        _popupView.alpha = 1.0;
+        _snapshot.frame = POPUP_SHOW_FRAME;
     } completion:^(BOOL finished) {
-        _popupButton.enabled = YES;
+        if (finished) {
+            _popupView.hidden = NO;
+            _snapshot.hidden = YES;
+            _popupButton.enabled = YES;
+        }
     }];
 }
 
 -(void)popupHide
 {
     _popupButton.enabled = NO;
+    _snapshot = [_popupView snapshotViewAfterScreenUpdates:NO];
+    _snapshot.frame = _popupView.frame;
+    [self.view addSubview:_snapshot];
+    [self.view bringSubviewToFront:_snapshot];
+    _popupView.hidden = YES;
     [UIView animateWithDuration:0.3 animations:^{
-        _popupView.frame = POPUP_HIDE_FRAME;
-        _popupView.alpha = 0.0;
+        _snapshot.frame = POPUP_HIDE_FRAME;
     } completion:^(BOOL finished) {
-        _popupView.hidden = YES;
-        _popupButton.enabled = YES;
+        if (finished) {
+            _snapshot.hidden = YES;
+            _popupButton.enabled = YES;
+        }
     }];
 }
 
 - (IBAction)mapTypeChanged:(UISegmentedControl *)sender {
+    sender.enabled = NO;
     if (sender.selectedSegmentIndex == 0) {
         _appleMapView.mapType = MKMapTypeStandard;
-        if (!_firstZoomAnimationDone) {
-            return;
-        }
-        [UIView animateWithDuration:0.6 animations:^{
-            _appleMapView.camera = [MKMapCamera cameraLookingAtCenterCoordinate:_appleMapView.centerCoordinate fromEyeCoordinate:CLLocationCoordinate2DMake(_appleMapView.centerCoordinate.latitude - 0.006, _appleMapView.centerCoordinate.longitude + 0.003) eyeAltitude:30];
+        [UIView animateWithDuration:0.8 animations:^{
+            _appleMapView.camera = [MKMapCamera cameraLookingAtCenterCoordinate:_myCurrentLoc.coordinate fromEyeCoordinate:CLLocationCoordinate2DMake(_myCurrentLoc.coordinate.latitude - 0.006, _myCurrentLoc.coordinate.longitude + 0.003) eyeAltitude:30];
+        } completion:^(BOOL finished) {
+            sender.enabled = YES;
         }];
     } else if (sender.selectedSegmentIndex == 1) {
-        if (!_firstZoomAnimationDone) {
-            _appleMapView.mapType = MKMapTypeHybrid;
-            return;
-        }
-        [UIView animateWithDuration:0.0 animations:^{
-            //_appleMapView.camera = [MKMapCamera cameraLookingAtCenterCoordinate:_appleMapView.centerCoordinate fromEyeCoordinate:_appleMapView.centerCoordinate eyeAltitude:30];
+        MKMapCamera *newCam = [self simulateMapCameraUponChangeToHybrid];
+        [UIView animateWithDuration:1.0 animations:^{
+            _appleMapView.camera = newCam;
         } completion:^(BOOL finished) {
             _appleMapView.mapType = MKMapTypeHybrid;
+            sender.enabled = YES;
         }];
     }
+}
+
+-(MKMapCamera *)simulateMapCameraUponChangeToHybrid
+{
+    //create clean copy of current camera
+    MKMapCamera *currentCam = [MKMapCamera camera];
+    currentCam.centerCoordinate = _appleMapView.camera.centerCoordinate;
+    currentCam.heading = _appleMapView.camera.heading;
+    currentCam.pitch = _appleMapView.camera.pitch;
+    currentCam.altitude = _appleMapView.camera.altitude;
+    
+    //create dummy map view copy, then mutate - heading, pitch, altitude changes are the critical component
+    MKMapView *dummyMapView = [[MKMapView alloc] initWithFrame:_appleMapView.frame];
+    dummyMapView.mapType = MKMapTypeStandard;
+    dummyMapView.camera = currentCam;
+    dummyMapView.mapType = MKMapTypeHybrid;
+    dummyMapView.camera = [MKMapCamera cameraLookingAtCenterCoordinate:_myCurrentLoc.coordinate fromEyeCoordinate:CLLocationCoordinate2DMake(_myCurrentLoc.coordinate.latitude - 0.006, _myCurrentLoc.coordinate.longitude + 0.003) eyeAltitude:30];
+    
+    return dummyMapView.camera;
 }
 
 -(void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
     for (UITouch *touch in touches) {
-        if (CGRectContainsPoint(_appleMapView.frame, [touch locationInView:self.view]) && !_popupView.isHidden && _popupButton.isEnabled) {
-            if (!CGRectContainsPoint(_popupView.frame, [touch locationInView:self.view])) {
-                [self popupHide];
-                break;
-            }
+        if (![[self.view hitTest:[touch locationInView:self.view] withEvent:event] isEqual:_popupView] && !_popupView.isHidden) {
+            [self popupHide];
+            break;
         }
     }
 }
@@ -142,12 +166,10 @@
 
 - (IBAction)snapToCurrentLocationPressed:(id)sender
 {
-    if (_firstZoomAnimationDone) {
-        CLLocation *currentMapCenterLoc = [[CLLocation alloc] initWithLatitude:_appleMapView.centerCoordinate.latitude longitude:_appleMapView.centerCoordinate.longitude];
-        double distanceToSnap = [_myCurrentLoc distanceFromLocation:currentMapCenterLoc];
-        double animateDuration = (log(distanceToSnap))/9;
-        [self resetMapCameraWithDuration:animateDuration completion:nil];
-    }
+    CLLocation *currentMapCenterLoc = [[CLLocation alloc] initWithLatitude:_appleMapView.centerCoordinate.latitude longitude:_appleMapView.centerCoordinate.longitude];
+    double distanceToSnap = [_myCurrentLoc distanceFromLocation:currentMapCenterLoc];
+    double animateDuration = (log(distanceToSnap))/9;
+    [self resetMapCameraWithDuration:animateDuration completion:nil];
 }
 
 -(void)resetMapCameraWithDuration:(CGFloat)duration completion:(void (^)(void))completion
