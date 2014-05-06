@@ -22,39 +22,23 @@
 - (void)drawRect:(CGRect)rect
 {
     //// General Declarations
-    CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
     CGContextRef context = UIGraphicsGetCurrentContext();
     
     //// Color Declarations
-    UIColor* color2 = [UIColor colorWithRed: 1 green: 0.933 blue: 0.8 alpha: 1];
-    UIColor* color = [UIColor colorWithRed: 1 green: 0.857 blue: 0.571 alpha: 1];
-    
-    //// Gradient Declarations
-    NSArray* gradientColors = [NSArray arrayWithObjects:
-                               (id)color.CGColor,
-                               (id)[UIColor colorWithRed: 1 green: 0.895 blue: 0.686 alpha: 1].CGColor,
-                               (id)color2.CGColor, nil];
-    CGFloat gradientLocations[] = {0, 0.5, 1};
-    CGGradientRef gradient = CGGradientCreateWithColors(colorSpace, (__bridge CFArrayRef)gradientColors, gradientLocations);
+    UIColor* color4 = [UIColor colorWithRed: 1 green: 1 blue: 1 alpha: 0.96];
     
     //// Shadow Declarations
-    UIColor* shadow = [[UIColor blackColor] colorWithAlphaComponent: 0.3];
-    CGSize shadowOffset = CGSizeMake(-2.1, 2.1);
-    CGFloat shadowBlurRadius = 8;
+    UIColor* shadow = [UIColor.blackColor colorWithAlphaComponent: 0.3];
+    CGSize shadowOffset = CGSizeMake(-2.1, 4.1);
+    CGFloat shadowBlurRadius = 5;
     
     //// Rounded Rectangle Drawing
     UIBezierPath* roundedRectanglePath = [UIBezierPath bezierPathWithRoundedRect: CGRectMake(7, 3, 221, 155) cornerRadius: 20];
     CGContextSaveGState(context);
-    CGContextSetShadowWithColor(context, shadowOffset, shadowBlurRadius, shadow.CGColor);
-    CGContextBeginTransparencyLayer(context, NULL);
-    [roundedRectanglePath addClip];
-    CGContextDrawLinearGradient(context, gradient, CGPointMake(29.36, 168.64), CGPointMake(205.64, -7.64), 0);
-    CGContextEndTransparencyLayer(context);
+    CGContextSetShadowWithColor(context, shadowOffset, shadowBlurRadius, [shadow CGColor]);
+    [color4 setFill];
+    [roundedRectanglePath fill];
     CGContextRestoreGState(context);
-    
-    //// Cleanup
-    CGGradientRelease(gradient);
-    CGColorSpaceRelease(colorSpace);
 }
 
 @end

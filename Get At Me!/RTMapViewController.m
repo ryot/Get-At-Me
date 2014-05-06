@@ -23,6 +23,8 @@
 @property (weak, nonatomic) IBOutlet UIToolbar *toolbar;
 @property (weak, nonatomic) IBOutlet UISwitch *mapSnapSwitch;
 @property (weak, nonatomic) IBOutlet UIBarButtonItem *popupButton;
+@property (weak, nonatomic) IBOutlet UILabel *includeMapSnapLabel;
+@property (weak, nonatomic) IBOutlet UILabel *mapSnapDescriptionLabel;
 
 #define POPUP_SHOW_FRAME CGRectMake(0, [[UIScreen mainScreen] bounds].size.height - 259, 230, 165)
 #define POPUP_HIDE_FRAME CGRectMake(0, [[UIScreen mainScreen] bounds].size.height - 94, 1, 1)
@@ -34,6 +36,11 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    UIColor *themeColor = [UIColor colorWithRed:1.0 green:0.45 blue:0.05 alpha:1];
+    _includeMapSnapLabel.textColor = themeColor;
+    _mapSnapSwitch.tintColor = themeColor;
+    _mapSnapDescriptionLabel.textColor = themeColor;
+    //_mapSnapSwitch.onTintColor = [UIColor colorWithRed:1.000 green:0.589 blue:0.000 alpha:1.000];
     
     //configure map view
     _myCurrentLoc = [CLLocation new];
@@ -187,7 +194,7 @@
 
 - (IBAction)getAtMePressed:(id)sender {
     if(![MFMessageComposeViewController canSendText]) {
-        UIAlertView *warningAlert = [[UIAlertView alloc] initWithTitle:@"Error" message:@"Your device doesn't support SMS!" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
+        UIAlertView *warningAlert = [[UIAlertView alloc] initWithTitle:@"Sorry!" message:@"Your device does not support SMS." delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
         [warningAlert show];
         return;
     }
@@ -206,7 +213,7 @@
     NSString *googleMapsAppURLEnd = [NSString stringWithFormat:@"%g+%g", _myCurrentLoc.coordinate.latitude, _myCurrentLoc.coordinate.longitude];
     NSString *googleMapsAppURL = [googleMapsAppURLBase stringByAppendingString:googleMapsAppURLEnd];
     
-    NSString *message = [NSString stringWithFormat:@"Get At Me!\n\nApple Maps (iOS): %@\n\nGoogle Maps App (Any): %@", appleMapsURL, googleMapsAppURL];
+    NSString *message = [NSString stringWithFormat:@"Get At Me!\nApple Maps (iOS): %@\n\nGoogle Maps App (Any): %@", appleMapsURL, googleMapsAppURL];
     
     [_locManager stopUpdatingLocation];
     

@@ -16,9 +16,12 @@
                         <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
-                            <mapView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" mapType="standard" showsUserLocation="YES" translatesAutoresizingMaskIntoConstraints="NO" id="wqo-Wa-7Nc">
-                                <rect key="frame" x="0.0" y="0.0" width="320" height="518"/>
+                            <mapView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" mapType="standard" showsUserLocation="YES" translatesAutoresizingMaskIntoConstraints="NO" id="wqo-Wa-7Nc">
+                                <rect key="frame" x="0.0" y="0.0" width="320" height="474"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="320" id="Icb-2o-eTk"/>
+                                </constraints>
                                 <connections>
                                     <outlet property="delegate" destination="vXZ-lx-hvc" id="SFk-Rg-DwO"/>
                                 </connections>
@@ -53,11 +56,11 @@
                                 </constraints>
                             </view>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="5CP-oO-Qq1" userLabel="Reset Camera Button" customClass="RTResetCameraButton">
-                                <rect key="frame" x="260" y="414" width="52" height="52"/>
+                                <rect key="frame" x="260" y="414" width="60" height="60"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="52" id="O2H-wp-ozQ"/>
-                                    <constraint firstAttribute="width" constant="52" id="mFf-oh-hMe"/>
+                                    <constraint firstAttribute="height" constant="60" id="51h-KC-cj6"/>
+                                    <constraint firstAttribute="width" constant="60" id="RjY-Qv-B1j"/>
                                 </constraints>
                                 <connections>
                                     <action selector="snapToCurrentLocationPressed:" destination="vXZ-lx-hvc" eventType="touchUpInside" id="kdT-he-MW5"/>
@@ -72,7 +75,7 @@
                                 </constraints>
                                 <items>
                                     <barButtonItem systemItem="camera" id="1AV-Xy-4Nw">
-                                        <color key="tintColor" red="1" green="0.4621376237" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                        <color key="tintColor" red="1" green="0.57347453749999999" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                         <connections>
                                             <action selector="cameraButtonPressed:" destination="vXZ-lx-hvc" id="s3c-pk-k1L"/>
                                         </connections>
@@ -86,15 +89,15 @@
                                                 <segment title="Map"/>
                                                 <segment title="Satellite"/>
                                             </segments>
-                                            <color key="tintColor" red="1" green="0.4621376237" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                            <color key="tintColor" red="1" green="0.57347453749999999" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                             <connections>
                                                 <action selector="mapTypeChanged:" destination="vXZ-lx-hvc" eventType="valueChanged" id="kC5-Kj-MII"/>
                                             </connections>
                                         </segmentedControl>
                                     </barButtonItem>
-                                    <barButtonItem width="23" style="plain" systemItem="fixedSpace" id="8RE-KN-eky"/>
+                                    <barButtonItem width="21" style="plain" systemItem="fixedSpace" id="8RE-KN-eky"/>
                                     <barButtonItem title="Get At Me!" style="plain" id="WN1-y6-35g">
-                                        <color key="tintColor" red="1" green="0.46213762370531875" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                        <color key="tintColor" red="1" green="0.57347453749999999" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                         <connections>
                                             <action selector="getAtMePressed:" destination="vXZ-lx-hvc" id="hxU-Sa-PwB"/>
                                         </connections>
@@ -113,17 +116,22 @@
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstItem="af6-KS-zFY" firstAttribute="top" secondItem="9pm-th-YFS" secondAttribute="bottom" id="0DS-gO-jad"/>
-                            <constraint firstAttribute="trailing" secondItem="5CP-oO-Qq1" secondAttribute="trailing" constant="8" id="EEN-Ha-ofZ"/>
+                            <constraint firstAttribute="trailing" secondItem="5CP-oO-Qq1" secondAttribute="trailing" id="0m0-Ad-vRT"/>
+                            <constraint firstItem="2vO-Fz-o0N" firstAttribute="top" secondItem="wqo-Wa-7Nc" secondAttribute="bottom" constant="44" id="3up-TK-3GE"/>
+                            <constraint firstItem="af6-KS-zFY" firstAttribute="top" secondItem="5CP-oO-Qq1" secondAttribute="bottom" id="6Vv-vj-Kof"/>
                             <constraint firstItem="2vO-Fz-o0N" firstAttribute="top" secondItem="af6-KS-zFY" secondAttribute="bottom" id="GQ7-A3-8Gp"/>
                             <constraint firstItem="2fi-mo-0CV" firstAttribute="top" secondItem="2vO-Fz-o0N" secondAttribute="bottom" id="Q3W-HM-LY9"/>
                             <constraint firstItem="af6-KS-zFY" firstAttribute="leading" secondItem="kh9-bI-dsS" secondAttribute="leading" id="iy9-Aw-KDL"/>
+                            <constraint firstItem="wqo-Wa-7Nc" firstAttribute="leading" secondItem="kh9-bI-dsS" secondAttribute="leading" id="msZ-Ez-HmK"/>
+                            <constraint firstItem="wqo-Wa-7Nc" firstAttribute="top" secondItem="kh9-bI-dsS" secondAttribute="top" id="ogj-IJ-wo4"/>
                             <constraint firstItem="2vO-Fz-o0N" firstAttribute="leading" secondItem="kh9-bI-dsS" secondAttribute="leading" id="ooc-NF-3Gx"/>
-                            <constraint firstItem="af6-KS-zFY" firstAttribute="top" secondItem="5CP-oO-Qq1" secondAttribute="bottom" constant="8" id="s7V-WJ-1fZ"/>
                             <constraint firstItem="9pm-th-YFS" firstAttribute="leading" secondItem="kh9-bI-dsS" secondAttribute="leading" id="zZl-E5-llr"/>
                         </constraints>
                     </view>
                     <connections>
                         <outlet property="appleMapView" destination="wqo-Wa-7Nc" id="qTn-p7-a0f"/>
+                        <outlet property="includeMapSnapLabel" destination="Mzq-DK-qCF" id="JrA-H0-tNV"/>
+                        <outlet property="mapSnapDescriptionLabel" destination="wW6-Jq-3FC" id="Sy3-CL-qXP"/>
                         <outlet property="mapSnapSwitch" destination="GIT-Nb-shm" id="6Dy-zN-TPJ"/>
                         <outlet property="popupButton" destination="1AV-Xy-4Nw" id="Gnj-p6-W1J"/>
                         <outlet property="popupView" destination="9pm-th-YFS" id="GEz-Hl-fVC"/>
