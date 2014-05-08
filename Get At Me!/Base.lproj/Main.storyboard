@@ -31,21 +31,25 @@
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <subviews>
                                     <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Include Map Snap" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Mzq-DK-qCF">
-                                        <rect key="frame" x="47" y="20" width="140" height="21"/>
+                                        <rect key="frame" x="49" y="20" width="143" height="21"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                        <fontDescription key="fontDescription" type="boldSystem" pointSize="17"/>
                                         <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="GIT-Nb-shm">
-                                        <rect key="frame" x="93" y="49" width="51" height="31"/>
+                                        <rect key="frame" x="92" y="49" width="51" height="31"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <color key="tintColor" red="0.36326530610000002" green="0.36734693880000002" blue="0.35918367350000002" alpha="1" colorSpace="calibratedRGB"/>
+                                        <connections>
+                                            <action selector="mapSnapSwitchToggled:" destination="vXZ-lx-hvc" eventType="valueChanged" id="jNg-9g-EMf"/>
+                                        </connections>
                                     </switch>
-                                    <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="For friends without smartphones. Attaches a ~20kb screenshot of your map view to the message." lineBreakMode="wordWrap" numberOfLines="3" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="203" translatesAutoresizingMaskIntoConstraints="NO" id="wW6-Jq-3FC">
-                                        <rect key="frame" x="18" y="88" width="203" height="47"/>
+                                    <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="For friends without smartphones. Attaches a ~20kb screenshot of your map view to the message." lineBreakMode="wordWrap" numberOfLines="3" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="202" translatesAutoresizingMaskIntoConstraints="NO" id="wW6-Jq-3FC">
+                                        <rect key="frame" x="20" y="88" width="202" height="47"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                                        <color key="textColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
                                         <nil key="highlightedColor"/>
                                     </label>
                                 </subviews>
@@ -56,11 +60,11 @@
                                 </constraints>
                             </view>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="5CP-oO-Qq1" userLabel="Reset Camera Button" customClass="RTResetCameraButton">
-                                <rect key="frame" x="260" y="414" width="60" height="60"/>
+                                <rect key="frame" x="262" y="416" width="58" height="58"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="60" id="51h-KC-cj6"/>
-                                    <constraint firstAttribute="width" constant="60" id="RjY-Qv-B1j"/>
+                                    <constraint firstAttribute="height" constant="58" id="sm4-pq-L2o"/>
+                                    <constraint firstAttribute="width" constant="58" id="yaO-D6-Bac"/>
                                 </constraints>
                                 <connections>
                                     <action selector="snapToCurrentLocationPressed:" destination="vXZ-lx-hvc" eventType="touchUpInside" id="kdT-he-MW5"/>
@@ -95,12 +99,26 @@
                                             </connections>
                                         </segmentedControl>
                                     </barButtonItem>
-                                    <barButtonItem width="21" style="plain" systemItem="fixedSpace" id="8RE-KN-eky"/>
-                                    <barButtonItem title="Get At Me!" style="plain" id="WN1-y6-35g">
-                                        <color key="tintColor" red="1" green="0.57347453749999999" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
-                                        <connections>
-                                            <action selector="getAtMePressed:" destination="vXZ-lx-hvc" id="hxU-Sa-PwB"/>
-                                        </connections>
+                                    <barButtonItem width="10" style="plain" systemItem="fixedSpace" id="8RE-KN-eky"/>
+                                    <barButtonItem title="Item" style="plain" id="03j-XD-566">
+                                        <button key="customView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" hasAttributedTitle="YES" id="uxg-lZ-0pT">
+                                            <rect key="frame" x="212" y="4" width="95" height="36"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                            <state key="normal">
+                                                <attributedString key="attributedTitle">
+                                                    <fragment content="Get At Me!">
+                                                        <attributes>
+                                                            <color key="NSColor" red="1" green="0.57347453749999999" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                                            <font key="NSFont" size="17" name="AvenirNext-Bold"/>
+                                                            <paragraphStyle key="NSParagraphStyle" alignment="natural" lineBreakMode="wordWrapping" baseWritingDirection="natural"/>
+                                                        </attributes>
+                                                    </fragment>
+                                                </attributedString>
+                                            </state>
+                                            <connections>
+                                                <action selector="getAtMePressed:" destination="vXZ-lx-hvc" eventType="touchUpInside" id="Gae-Br-QFS"/>
+                                            </connections>
+                                        </button>
                                     </barButtonItem>
                                 </items>
                             </toolbar>
@@ -112,19 +130,35 @@
                                     <constraint firstAttribute="height" constant="50" id="tQH-qP-eS5"/>
                                 </constraints>
                             </adBannerView>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="tJj-yh-VYg" customClass="RTPerspectiveButton">
+                                <rect key="frame" x="262" y="358" width="58" height="58"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="58" id="FzV-CV-DOC"/>
+                                    <constraint firstAttribute="width" constant="58" id="Ugx-aY-nVo"/>
+                                </constraints>
+                                <state key="normal">
+                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <action selector="perspectiveButtonPressed:" destination="vXZ-lx-hvc" eventType="touchUpInside" id="hlt-Ma-g1F"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstItem="af6-KS-zFY" firstAttribute="top" secondItem="9pm-th-YFS" secondAttribute="bottom" id="0DS-gO-jad"/>
-                            <constraint firstAttribute="trailing" secondItem="5CP-oO-Qq1" secondAttribute="trailing" id="0m0-Ad-vRT"/>
                             <constraint firstItem="2vO-Fz-o0N" firstAttribute="top" secondItem="wqo-Wa-7Nc" secondAttribute="bottom" constant="44" id="3up-TK-3GE"/>
-                            <constraint firstItem="af6-KS-zFY" firstAttribute="top" secondItem="5CP-oO-Qq1" secondAttribute="bottom" id="6Vv-vj-Kof"/>
                             <constraint firstItem="2vO-Fz-o0N" firstAttribute="top" secondItem="af6-KS-zFY" secondAttribute="bottom" id="GQ7-A3-8Gp"/>
+                            <constraint firstItem="af6-KS-zFY" firstAttribute="top" secondItem="5CP-oO-Qq1" secondAttribute="bottom" id="HCJ-Rz-TWA"/>
                             <constraint firstItem="2fi-mo-0CV" firstAttribute="top" secondItem="2vO-Fz-o0N" secondAttribute="bottom" id="Q3W-HM-LY9"/>
+                            <constraint firstAttribute="trailing" secondItem="5CP-oO-Qq1" secondAttribute="trailing" id="QYC-9N-Mop"/>
                             <constraint firstItem="af6-KS-zFY" firstAttribute="leading" secondItem="kh9-bI-dsS" secondAttribute="leading" id="iy9-Aw-KDL"/>
+                            <constraint firstAttribute="trailing" secondItem="tJj-yh-VYg" secondAttribute="trailing" id="kdX-ov-Hao"/>
                             <constraint firstItem="wqo-Wa-7Nc" firstAttribute="leading" secondItem="kh9-bI-dsS" secondAttribute="leading" id="msZ-Ez-HmK"/>
                             <constraint firstItem="wqo-Wa-7Nc" firstAttribute="top" secondItem="kh9-bI-dsS" secondAttribute="top" id="ogj-IJ-wo4"/>
                             <constraint firstItem="2vO-Fz-o0N" firstAttribute="leading" secondItem="kh9-bI-dsS" secondAttribute="leading" id="ooc-NF-3Gx"/>
+                            <constraint firstItem="5CP-oO-Qq1" firstAttribute="top" secondItem="tJj-yh-VYg" secondAttribute="bottom" id="tmf-GS-jWW"/>
                             <constraint firstItem="9pm-th-YFS" firstAttribute="leading" secondItem="kh9-bI-dsS" secondAttribute="leading" id="zZl-E5-llr"/>
                         </constraints>
                     </view>
@@ -133,8 +167,10 @@
                         <outlet property="includeMapSnapLabel" destination="Mzq-DK-qCF" id="JrA-H0-tNV"/>
                         <outlet property="mapSnapDescriptionLabel" destination="wW6-Jq-3FC" id="Sy3-CL-qXP"/>
                         <outlet property="mapSnapSwitch" destination="GIT-Nb-shm" id="6Dy-zN-TPJ"/>
+                        <outlet property="perspectiveButton" destination="tJj-yh-VYg" id="Uik-jf-87f"/>
                         <outlet property="popupButton" destination="1AV-Xy-4Nw" id="Gnj-p6-W1J"/>
                         <outlet property="popupView" destination="9pm-th-YFS" id="GEz-Hl-fVC"/>
+                        <outlet property="resetCameraButton" destination="5CP-oO-Qq1" id="hdG-St-zIt"/>
                         <outlet property="toolbar" destination="af6-KS-zFY" id="Tv0-Da-YQm"/>
                     </connections>
                 </viewController>

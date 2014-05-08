@@ -10,6 +10,8 @@
 #import <MapKit/MapKit.h>
 #import <MessageUI/MessageUI.h>
 #import <MobileCoreServices/MobileCoreServices.h>
+#import "RTPerspectiveButton.h"
+#import "RTResetCameraButton.h"
 
 @interface RTMapViewController () <MKMapViewDelegate, CLLocationManagerDelegate, MFMessageComposeViewControllerDelegate>
 
@@ -25,6 +27,9 @@
 @property (weak, nonatomic) IBOutlet UIBarButtonItem *popupButton;
 @property (weak, nonatomic) IBOutlet UILabel *includeMapSnapLabel;
 @property (weak, nonatomic) IBOutlet UILabel *mapSnapDescriptionLabel;
+@property (weak, nonatomic) IBOutlet RTResetCameraButton *resetCameraButton;
+@property (weak, nonatomic) IBOutlet RTPerspectiveButton *perspectiveButton;
+@property (nonatomic) BOOL mapIs3D;
 
 #define POPUP_SHOW_FRAME CGRectMake(0, [[UIScreen mainScreen] bounds].size.height - 259, 230, 165)
 #define POPUP_HIDE_FRAME CGRectMake(0, [[UIScreen mainScreen] bounds].size.height - 94, 1, 1)
@@ -36,31 +41,44 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    UIColor *themeColor = [UIColor colorWithRed:1.0 green:0.45 blue:0.05 alpha:1];
+    
+    _mapSnapSwitch.on = [[NSUserDefaults standardUserDefaults] boolForKey:@"mapSnapSwitchState"];
+    _perspectiveButton.toggled = [[NSUserDefaults standardUserDefaults] boolForKey:@"threeDimensionsButtonState"];
+    
+    if (_appleMapView.isPitchEnabled) {
+        _mapIs3D = YES;
+        _perspectiveButton.toggled = YES;
+        [_perspectiveButton setNeedsDisplay];
+    } else {
+        _mapIs3D = NO;
+        _perspectiveButton.hidden = YES;
+    }
+    
+    UIColor *themeColor = [UIColor colorWithRed:0.99 green:0.57 blue:0.15 alpha:1];
     _includeMapSnapLabel.textColor = themeColor;
     _mapSnapSwitch.tintColor = themeColor;
-    _mapSnapDescriptionLabel.textColor = themeColor;
-    //_mapSnapSwitch.onTintColor = [UIColor colorWithRed:1.000 green:0.589 blue:0.000 alpha:1.000];
+    _mapSnapSwitch.onTintColor = themeColor;
     
     //configure map view
     _myCurrentLoc = [CLLocation new];
     
     //configure location manager
     _locManager = [CLLocationManager new];
-    _locManager.desiredAccuracy = kCLLocationAccuracyNearestTenMeters;
+    _locManager.desiredAccuracy = kCLLocationAccuracyBestForNavigation;
     _locManager.delegate = self;
     [_locManager startUpdatingLocation];
     
     [self.view bringSubviewToFront:_toolbar];
     
-    _snapshot = [_popupView snapshotViewAfterScreenUpdates:NO];
-    _snapshot.frame = _popupView.frame;
+    _snapshot = [_popupView snapshotViewAfterScreenUpdates:YES];
     [self.view addSubview:_snapshot];
     [self.view bringSubviewToFront:_snapshot];
     _snapshot.frame = POPUP_HIDE_FRAME;
     _popupView.hidden = YES;
     _snapshot.hidden = YES;
 }
+
+#pragma Visual presentation
 
 - (IBAction)cameraButtonPressed:(id)sender {
     if (_popupView.hidden) {
@@ -90,7 +108,7 @@
 {
     _popupButton.enabled = NO;
     _snapshot = [_popupView snapshotViewAfterScreenUpdates:NO];
-    _snapshot.frame = _popupView.frame;
+    _snapshot.frame = POPUP_SHOW_FRAME;
     [self.view addSubview:_snapshot];
     [self.view bringSubviewToFront:_snapshot];
     _popupView.hidden = YES;
@@ -106,41 +124,65 @@
 
 - (IBAction)mapTypeChanged:(UISegmentedControl *)sender {
     sender.enabled = NO;
+    _resetCameraButton.enabled = NO;
+    MKMapCamera *newCam = [MKMapCamera cameraLookingAtCenterCoordinate:_myCurrentLoc.coordinate fromEyeCoordinate:_myCurrentLoc.coordinate eyeAltitude:2000];
     if (sender.selectedSegmentIndex == 0) {
         _appleMapView.mapType = MKMapTypeStandard;
-        [UIView animateWithDuration:0.8 animations:^{
-            _appleMapView.camera = [MKMapCamera cameraLookingAtCenterCoordinate:_myCurrentLoc.coordinate fromEyeCoordinate:CLLocationCoordinate2DMake(_myCurrentLoc.coordinate.latitude - 0.006, _myCurrentLoc.coordinate.longitude + 0.003) eyeAltitude:30];
-        } completion:^(BOOL finished) {
-            sender.enabled = YES;
-        }];
-    } else if (sender.selectedSegmentIndex == 1) {
-        MKMapCamera *newCam = [self simulateMapCameraUponChangeToHybrid];
+        if (_appleMapView.isPitchEnabled && _mapIs3D) {
+            newCam = [MKMapCamera cameraLookingAtCenterCoordinate:_myCurrentLoc.coordinate fromEyeCoordinate:CLLocationCoordinate2DMake(_myCurrentLoc.coordinate.latitude - 0.006, _myCurrentLoc.coordinate.longitude + 0.003) eyeAltitude:30];
+        }
         [UIView animateWithDuration:1.0 animations:^{
             _appleMapView.camera = newCam;
+            _perspectiveButton.frame = CGRectMake(260, _perspectiveButton.frame.origin.y, _perspectiveButton.frame.size.width, _perspectiveButton.frame.size.height);
+        } completion:^(BOOL finished) {
+            sender.enabled = YES;
+            _resetCameraButton.enabled = YES;
+        }];
+    } else if (sender.selectedSegmentIndex == 1) {
+        [UIView animateWithDuration:1.0 animations:^{
+            _appleMapView.camera = newCam;
+            _perspectiveButton.frame = CGRectMake(340, _perspectiveButton.frame.origin.y, _perspectiveButton.frame.size.width, _perspectiveButton.frame.size.height);
         } completion:^(BOOL finished) {
             _appleMapView.mapType = MKMapTypeHybrid;
             sender.enabled = YES;
+            _resetCameraButton.enabled = YES;
         }];
     }
 }
 
--(MKMapCamera *)simulateMapCameraUponChangeToHybrid
+-(void)changeMapDimensionsWith3DState:(BOOL)newDimension
 {
-    //create clean copy of current camera
-    MKMapCamera *currentCam = [MKMapCamera camera];
-    currentCam.centerCoordinate = _appleMapView.camera.centerCoordinate;
-    currentCam.heading = _appleMapView.camera.heading;
-    currentCam.pitch = _appleMapView.camera.pitch;
-    currentCam.altitude = _appleMapView.camera.altitude;
-    
-    //create dummy map view copy, then mutate - heading, pitch, altitude changes are the critical component
-    MKMapView *dummyMapView = [[MKMapView alloc] initWithFrame:_appleMapView.frame];
-    dummyMapView.mapType = MKMapTypeStandard;
-    dummyMapView.camera = currentCam;
-    dummyMapView.mapType = MKMapTypeHybrid;
-    dummyMapView.camera = [MKMapCamera cameraLookingAtCenterCoordinate:_myCurrentLoc.coordinate fromEyeCoordinate:CLLocationCoordinate2DMake(_myCurrentLoc.coordinate.latitude - 0.006, _myCurrentLoc.coordinate.longitude + 0.003) eyeAltitude:30];
-    
-    return dummyMapView.camera;
+    if (_mapIs3D != newDimension) {
+        _mapIs3D = newDimension;
+        NSOperationQueue *queue = [NSOperationQueue new];
+        if (_mapIs3D) {
+            [UIView animateWithDuration:0.7 animations:^{
+                _appleMapView.camera = [MKMapCamera cameraLookingAtCenterCoordinate:_myCurrentLoc.coordinate fromEyeCoordinate:_myCurrentLoc.coordinate eyeAltitude:700];
+            } completion:^(BOOL finished) {
+                [queue addOperationWithBlock:^{
+                    usleep(250000);
+                    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+                        [UIView animateWithDuration:0.7 animations:^{
+                            _appleMapView.camera = [MKMapCamera cameraLookingAtCenterCoordinate:_myCurrentLoc.coordinate fromEyeCoordinate:CLLocationCoordinate2DMake(_myCurrentLoc.coordinate.latitude - 0.006, _myCurrentLoc.coordinate.longitude + 0.003) eyeAltitude:30];
+                        }];
+                    }];
+                }];
+            }];
+        } else {
+            [UIView animateWithDuration:0.7 animations:^{
+                _appleMapView.camera = [MKMapCamera cameraLookingAtCenterCoordinate:_myCurrentLoc.coordinate fromEyeCoordinate:_myCurrentLoc.coordinate eyeAltitude:700];
+            } completion:^(BOOL finished) {
+                [queue addOperationWithBlock:^{
+                    usleep(250000);
+                    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+                        [UIView animateWithDuration:0.7 animations:^{
+                            _appleMapView.camera = [MKMapCamera cameraLookingAtCenterCoordinate:_myCurrentLoc.coordinate fromEyeCoordinate:_myCurrentLoc.coordinate eyeAltitude:2000];
+                        }];
+                    }];
+                }];
+            }];
+        }
+    }
 }
 
 -(void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
@@ -151,6 +193,23 @@
             break;
         }
     }
+}
+
+- (IBAction)perspectiveButtonPressed:(id)sender {
+    if (_mapIs3D) {
+        _perspectiveButton.toggled = NO;
+        [self changeMapDimensionsWith3DState:NO];
+    } else {
+        _perspectiveButton.toggled = YES;
+        [self changeMapDimensionsWith3DState:YES];
+    }
+    [_perspectiveButton setNeedsDisplay];
+    [UIView transitionWithView:_perspectiveButton duration:0.1 options:UIViewAnimationOptionTransitionCrossDissolve animations:^{
+        [_perspectiveButton.layer displayIfNeeded];
+    } completion:nil];
+    [[NSUserDefaults standardUserDefaults] setBool:_perspectiveButton.toggled forKey:@"threeDimensionsButtonState"];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+
 }
 
 #pragma Location updating
@@ -173,24 +232,48 @@
 
 - (IBAction)snapToCurrentLocationPressed:(id)sender
 {
-    CLLocation *currentMapCenterLoc = [[CLLocation alloc] initWithLatitude:_appleMapView.centerCoordinate.latitude longitude:_appleMapView.centerCoordinate.longitude];
-    double distanceToSnap = [_myCurrentLoc distanceFromLocation:currentMapCenterLoc];
+    _resetCameraButton.pressed = YES;
+    [_resetCameraButton setNeedsDisplay];
+    [UIView transitionWithView:_resetCameraButton duration:0.1 options:UIViewAnimationOptionTransitionCrossDissolve animations:^{
+        [_perspectiveButton.layer displayIfNeeded];
+    } completion:^(BOOL finished) {
+        _resetCameraButton.pressed = NO;
+        [_resetCameraButton setNeedsDisplay];
+        [UIView transitionWithView:_resetCameraButton duration:1.0 options:UIViewAnimationOptionTransitionCrossDissolve animations:^{
+            [_perspectiveButton.layer displayIfNeeded];
+        } completion:nil];
+    }];
+    CLLocation *currentMapCenterLoc = [[CLLocation alloc] initWithCoordinate:_appleMapView.camera.centerCoordinate altitude:_appleMapView.camera.altitude horizontalAccuracy:0 verticalAccuracy:0 timestamp:[NSDate date]];
+    double coordinateDifference = [_myCurrentLoc distanceFromLocation:currentMapCenterLoc];
+    double altitudeDifference = abs(_myCurrentLoc.altitude - currentMapCenterLoc.altitude);
+    double distanceToSnap = coordinateDifference + altitudeDifference;
     double animateDuration = (log(distanceToSnap))/9;
     [self resetMapCameraWithDuration:animateDuration completion:nil];
 }
 
 -(void)resetMapCameraWithDuration:(CGFloat)duration completion:(void (^)(void))completion
 {
-    [UIView animateWithDuration:duration animations:^{
-        _appleMapView.camera = [MKMapCamera cameraLookingAtCenterCoordinate:_myCurrentLoc.coordinate fromEyeCoordinate:CLLocationCoordinate2DMake(_myCurrentLoc.coordinate.latitude - 0.006, _myCurrentLoc.coordinate.longitude + 0.003) eyeAltitude:30];
-    } completion:^(BOOL finished) {
-        if (completion) {
-            _firstZoomAnimationDone = YES;
-        }
-    }];
+    
+    if (_appleMapView.isPitchEnabled && _mapIs3D && _appleMapView.mapType != MKMapTypeHybrid) {
+        [UIView animateWithDuration:duration animations:^{
+            _appleMapView.camera = [MKMapCamera cameraLookingAtCenterCoordinate:_myCurrentLoc.coordinate fromEyeCoordinate:CLLocationCoordinate2DMake(_myCurrentLoc.coordinate.latitude - 0.006, _myCurrentLoc.coordinate.longitude + 0.003) eyeAltitude:30];
+        } completion:^(BOOL finished) {
+            if (completion) {
+                _firstZoomAnimationDone = YES;
+            }
+        }];
+    } else {
+        [UIView animateWithDuration:duration animations:^{
+            _appleMapView.camera = [MKMapCamera cameraLookingAtCenterCoordinate:_myCurrentLoc.coordinate fromEyeCoordinate:_myCurrentLoc.coordinate eyeAltitude:700];
+        } completion:^(BOOL finished) {
+            if (completion) {
+                _firstZoomAnimationDone = YES;
+            }
+        }];
+    }
 }
 
-#pragma Location Sending
+#pragma Location sending
 
 - (IBAction)getAtMePressed:(id)sender {
     if(![MFMessageComposeViewController canSendText]) {
@@ -215,11 +298,9 @@
     
     NSString *message = [NSString stringWithFormat:@"Get At Me!\nApple Maps (iOS): %@\n\nGoogle Maps App (Any): %@", appleMapsURL, googleMapsAppURL];
     
-    [_locManager stopUpdatingLocation];
-    
     MFMessageComposeViewController *messageController = [MFMessageComposeViewController new];
     messageController.messageComposeDelegate = self;
-    messageController.subject = @"Come At Me!";
+    messageController.subject = @"Get At Me!";
     messageController.body = message;
     //snapshot map view in case receiver doesn't have a smartphone/dataplan.
     if (_mapSnapSwitch.isOn && [MFMessageComposeViewController canSendAttachments]) {
@@ -229,20 +310,34 @@
         UIGraphicsEndImageContext();
         [messageController addAttachmentData:UIImageJPEGRepresentation(image, 0.5) typeIdentifier:(__bridge NSString *)kUTTypeJPEG filename:@"MapSnap.jpeg"]; //~30kb, still very legible
     }
-    
-    // Present message view controller on screen
+    // Present message view controller on screen (modal)
     [self presentViewController:messageController animated:YES completion:nil];
 }
 
 -(void)messageComposeViewController:(MFMessageComposeViewController *)controller didFinishWithResult:(MessageComposeResult)result
 {
     [controller dismissViewControllerAnimated:YES completion:^{
-        [_locManager startUpdatingLocation];
         if (result == MFMailComposeResultFailed) {
             UIAlertView *warningAlert = [[UIAlertView alloc] initWithTitle:@"Error" message:@"Your SMS failed to send! Please try again." delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
             [warningAlert show];
         }
     }];
+}
+- (IBAction)mapSnapSwitchToggled:(id)sender {
+    [[NSUserDefaults standardUserDefaults] setBool:_mapSnapSwitch.isOn forKey:@"threeDimensionsButtonState"];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+}
+
+-(void)viewWillDisappear:(BOOL)animated
+{
+    [_locManager stopUpdatingLocation];
+    [super viewWillDisappear:animated];
+}
+
+-(void)viewWillAppear:(BOOL)animated
+{
+    [_locManager startUpdatingLocation];
+    [super viewWillAppear:animated];
 }
 
 - (void)didReceiveMemoryWarning

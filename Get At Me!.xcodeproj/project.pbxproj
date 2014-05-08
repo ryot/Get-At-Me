@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		FA1BD40C191A03C800F30D5D /* RTPerspectiveButton.m in Sources */ = {isa = PBXBuildFile; fileRef = FA1BD40B191A03C800F30D5D /* RTPerspectiveButton.m */; };
+		FAA9A23E191B220900759D8C /* DefaultPreferences.plist in Resources */ = {isa = PBXBuildFile; fileRef = FAA9A23D191B220900759D8C /* DefaultPreferences.plist */; };
 		FAB628181914761200A1FD16 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FAB628171914761200A1FD16 /* Foundation.framework */; };
 		FAB6281A1914761200A1FD16 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FAB628191914761200A1FD16 /* CoreGraphics.framework */; };
 		FAB6281C1914761200A1FD16 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FAB6281B1914761200A1FD16 /* UIKit.framework */; };
@@ -38,6 +40,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		FA1BD40A191A03C800F30D5D /* RTPerspectiveButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RTPerspectiveButton.h; sourceTree = "<group>"; };
+		FA1BD40B191A03C800F30D5D /* RTPerspectiveButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RTPerspectiveButton.m; sourceTree = "<group>"; };
+		FAA9A23D191B220900759D8C /* DefaultPreferences.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = DefaultPreferences.plist; sourceTree = "<group>"; };
 		FAB628141914761200A1FD16 /* Get At Me!.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Get At Me!.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		FAB628171914761200A1FD16 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		FAB628191914761200A1FD16 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
@@ -128,6 +133,7 @@
 			children = (
 				FAB628261914761200A1FD16 /* RTAppDelegate.h */,
 				FAB628271914761200A1FD16 /* RTAppDelegate.m */,
+				FAA9A23D191B220900759D8C /* DefaultPreferences.plist */,
 				FAB62850191476D500A1FD16 /* Controller */,
 				FAB6284F191476C100A1FD16 /* View */,
 				FAB6282F1914761200A1FD16 /* Images.xcassets */,
@@ -173,6 +179,8 @@
 				FAB628521914771100A1FD16 /* RTPopupSettingsView.m */,
 				FAB628541914773200A1FD16 /* RTResetCameraButton.h */,
 				FAB628551914773200A1FD16 /* RTResetCameraButton.m */,
+				FA1BD40A191A03C800F30D5D /* RTPerspectiveButton.h */,
+				FA1BD40B191A03C800F30D5D /* RTPerspectiveButton.m */,
 			);
 			name = View;
 			sourceTree = "<group>";
@@ -272,6 +280,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				FAB628301914761200A1FD16 /* Images.xcassets in Resources */,
+				FAA9A23E191B220900759D8C /* DefaultPreferences.plist in Resources */,
 				FAB628221914761200A1FD16 /* InfoPlist.strings in Resources */,
 				FAB6282B1914761200A1FD16 /* Main.storyboard in Resources */,
 			);
@@ -294,6 +303,7 @@
 			files = (
 				FAB628281914761200A1FD16 /* RTAppDelegate.m in Sources */,
 				FAB628241914761200A1FD16 /* main.m in Sources */,
+				FA1BD40C191A03C800F30D5D /* RTPerspectiveButton.m in Sources */,
 				FAB628531914771100A1FD16 /* RTPopupSettingsView.m in Sources */,
 				FAB6284E191476BA00A1FD16 /* RTMapViewController.m in Sources */,
 				FAB628561914773200A1FD16 /* RTResetCameraButton.m in Sources */,

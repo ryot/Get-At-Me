@@ -25,7 +25,7 @@
     CGContextRef context = UIGraphicsGetCurrentContext();
     
     //// Color Declarations
-    UIColor* color4 = [UIColor colorWithRed: 1 green: 1 blue: 1 alpha: 0.96];
+    UIColor* color4 = [UIColor colorWithRed: 1 green: 1 blue: 1 alpha: 1];
     
     //// Shadow Declarations
     UIColor* shadow = [UIColor.blackColor colorWithAlphaComponent: 0.3];
