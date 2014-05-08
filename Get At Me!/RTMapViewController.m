@@ -131,6 +131,8 @@
         if (_appleMapView.isPitchEnabled && _mapIs3D) {
             newCam = [MKMapCamera cameraLookingAtCenterCoordinate:_myCurrentLoc.coordinate fromEyeCoordinate:CLLocationCoordinate2DMake(_myCurrentLoc.coordinate.latitude - 0.006, _myCurrentLoc.coordinate.longitude + 0.003) eyeAltitude:30];
         }
+        _perspectiveButton.frame = CGRectMake(340, _perspectiveButton.frame.origin.y, _perspectiveButton.frame.size.width, _perspectiveButton.frame.size.height);
+        _perspectiveButton.hidden = NO;
         [UIView animateWithDuration:1.0 animations:^{
             _appleMapView.camera = newCam;
             _perspectiveButton.frame = CGRectMake(260, _perspectiveButton.frame.origin.y, _perspectiveButton.frame.size.width, _perspectiveButton.frame.size.height);
@@ -146,6 +148,7 @@
             _appleMapView.mapType = MKMapTypeHybrid;
             sender.enabled = YES;
             _resetCameraButton.enabled = YES;
+            _perspectiveButton.hidden = YES;
         }];
     }
 }
