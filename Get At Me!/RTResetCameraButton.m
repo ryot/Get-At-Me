@@ -67,15 +67,13 @@
             roundedRectanglePath.lineWidth = 1;
             [roundedRectanglePath stroke];
             
-            
-            
             //// Bezier Drawing
             UIBezierPath* bezierPath = UIBezierPath.bezierPath;
-            [bezierPath moveToPoint: CGPointMake(27.5, 41.5)];
-            [bezierPath addLineToPoint: CGPointMake(9.5, 9.5)];
-            [bezierPath addLineToPoint: CGPointMake(40.5, 27.5)];
-            [bezierPath addLineToPoint: CGPointMake(27.5, 27.5)];
-            [bezierPath addLineToPoint: CGPointMake(27.5, 41.5)];
+            [bezierPath moveToPoint: CGPointMake(28.5, 42.5)];
+            [bezierPath addLineToPoint: CGPointMake(10.5, 10.5)];
+            [bezierPath addLineToPoint: CGPointMake(41.5, 28.5)];
+            [bezierPath addLineToPoint: CGPointMake(28.5, 28.5)];
+            [bezierPath addLineToPoint: CGPointMake(28.5, 42.5)];
             [bezierPath closePath];
             [gradient4Color setFill];
             [bezierPath fill];

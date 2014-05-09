@@ -70,9 +70,9 @@
             NSMutableParagraphStyle* roundedRectangleStyle = NSMutableParagraphStyle.defaultParagraphStyle.mutableCopy;
             roundedRectangleStyle.alignment = NSTextAlignmentCenter;
             
-            NSDictionary* roundedRectangleFontAttributes = @{NSFontAttributeName: [UIFont fontWithName: @"AvenirNext-Bold" size: 23], NSForegroundColorAttributeName: color9, NSParagraphStyleAttributeName: roundedRectangleStyle};
+            NSDictionary* roundedRectangleFontAttributes = @{NSFontAttributeName: [UIFont fontWithName: @"AvenirNext-DemiBold" size: 22], NSForegroundColorAttributeName: color9, NSParagraphStyleAttributeName: roundedRectangleStyle};
             
-            [textContent drawInRect: CGRectOffset(roundedRectangleRect, 0, (CGRectGetHeight(roundedRectangleRect) - [textContent boundingRectWithSize: roundedRectangleRect.size options: NSStringDrawingUsesLineFragmentOrigin attributes: roundedRectangleFontAttributes context: nil].size.height) / 2) withAttributes: roundedRectangleFontAttributes];
+            [textContent drawInRect: CGRectOffset(roundedRectangleRect, 1, ((CGRectGetHeight(roundedRectangleRect) - [textContent boundingRectWithSize: roundedRectangleRect.size options: NSStringDrawingUsesLineFragmentOrigin attributes: roundedRectangleFontAttributes context: nil].size.height) / 2) + 1) withAttributes: roundedRectangleFontAttributes];
         }
     } else {
         //// General Declarations
@@ -106,7 +106,7 @@
                 NSMutableParagraphStyle* textStyle = NSMutableParagraphStyle.defaultParagraphStyle.mutableCopy;
                 textStyle.alignment = NSTextAlignmentCenter;
                 
-                NSDictionary* textFontAttributes = @{NSFontAttributeName: [UIFont fontWithName: @"AvenirNext-Bold" size: 23], NSForegroundColorAttributeName: color9, NSParagraphStyleAttributeName: textStyle};
+                NSDictionary* textFontAttributes = @{NSFontAttributeName: [UIFont fontWithName: @"AvenirNext-DemiBold" size: 22], NSForegroundColorAttributeName: color9, NSParagraphStyleAttributeName: textStyle};
                 
                 [textContent drawInRect: CGRectOffset(textRect, 0, (CGRectGetHeight(textRect) - [textContent boundingRectWithSize: textRect.size options: NSStringDrawingUsesLineFragmentOrigin attributes: textFontAttributes context: nil].size.height) / 2) withAttributes: textFontAttributes];
             }

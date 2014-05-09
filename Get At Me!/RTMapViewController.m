@@ -61,15 +61,14 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    NSLog(@"%f", [[UIScreen mainScreen] bounds].size.height );
-    
+        
     self.canDisplayBannerAds = YES; //this inserts an iad view container above self.view, so use self.originalContentView from now on instead of self.view
     
     //set user settings
     _mapSnapSwitch.on = [[NSUserDefaults standardUserDefaults] boolForKey:@"mapSnapSwitchState"];
     if (_appleMapView.isPitchEnabled) {
-        _mapIs3D = YES;
         _perspectiveButton.toggled = [[NSUserDefaults standardUserDefaults] boolForKey:@"threeDeeButtonState"];
+        _mapIs3D = _perspectiveButton.toggled;
         [_perspectiveButton setNeedsDisplay];
     } else {
         _mapIs3D = NO;
@@ -97,7 +96,6 @@
     _resetCameraButton.frame = RESET_CAMERA_BUTTON_AD_HIDE;
     _toolbar.frame = TOOLBAR_AD_HIDE;
     _popupView.frame = POPUP_SHOW_FRAME_AD_HIDE;
-    [self.view setNeedsLayout];
 
     _snapshot = [_popupView snapshotViewAfterScreenUpdates:YES];
     _snapshot.frame = _popupView.frame;
@@ -237,15 +235,20 @@
 
 -(void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
-    for (UITouch *touch in touches) {
-        if (![[self.originalContentView hitTest:[touch locationInView:self.originalContentView] withEvent:event] isEqual:_popupView] && !_popupView.isHidden) {
-            [self popupHide];
-            break;
+    if (!_popupView.isHidden) {
+        for (UITouch *touch in touches) {
+            if (![[self.originalContentView hitTest:[touch locationInView:self.originalContentView] withEvent:event] isEqual:_popupView]) {
+                [self popupHide];
+                break;
+            }
         }
     }
 }
 
 - (IBAction)perspectiveButtonPressed:(id)sender {
+    if (!_popupView.isHidden) {
+        [self popupHide];
+    }
     if (_perspectiveButton.toggled) {
         _perspectiveButton.toggled = NO;
         [self changeMapDimensionsWith3DState:NO];
@@ -282,6 +285,9 @@
 
 - (IBAction)snapToCurrentLocationPressed:(id)sender
 {
+    if (!_popupView.isHidden) {
+        [self popupHide];
+    }
     _resetCameraButton.pressed = YES;
     [_resetCameraButton setNeedsDisplay];
     [UIView transitionWithView:_resetCameraButton duration:0.15 options:UIViewAnimationOptionTransitionCrossDissolve animations:^{
@@ -325,12 +331,14 @@
 #pragma Location sending
 
 - (IBAction)getAtMePressed:(id)sender {
+    if (!_popupView.isHidden) {
+        [self popupHide];
+    }
     if(![MFMessageComposeViewController canSendText]) {
         UIAlertView *warningAlert = [[UIAlertView alloc] initWithTitle:@"Sorry!" message:@"Your device does not support SMS." delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
         [warningAlert show];
         return;
     }
-    _popupView.hidden = YES;
     [self configureAndOpenMessageComposeView];
 }
 
@@ -380,18 +388,12 @@
 -(void)viewWillDisappear:(BOOL)animated
 {
     [_locManager stopUpdatingLocation];
-    [_iAdBanner removeFromSuperview];
-    _iAdBanner.delegate = nil;
-    [self.originalContentView layoutIfNeeded];
     [super viewWillDisappear:animated];
 }
 
 -(void)viewWillAppear:(BOOL)animated
 {
     [_locManager startUpdatingLocation];
-    [self.originalContentView addSubview:_iAdBanner];
-    _iAdBanner.delegate = self;
-    [self.originalContentView layoutIfNeeded];
     [super viewWillAppear:animated];
 }
 
@@ -423,11 +425,7 @@
         _resetCameraButton.frame = RESET_CAMERA_BUTTON_AD_HIDE;
         _perspectiveButton.frame = PERSPECTIVE_BUTTON_AD_HIDE;
         _popupView.frame = POPUP_SHOW_FRAME_AD_HIDE;
-    } completion:^(BOOL finished) {
-        if (finished) {
-            _adBannerUp = NO;
-        }
-    }];
+    } completion:nil];
 }
 
 -(void)showAd
@@ -440,11 +438,7 @@
         _resetCameraButton.frame = RESET_CAMERA_BUTTON_AD_SHOW;
         _perspectiveButton.frame = PERSPECTIVE_BUTTON_AD_SHOW;
         _popupView.frame = POPUP_SHOW_FRAME_AD_SHOW;
-    } completion:^(BOOL finished) {
-        if (finished) {
-            _adBannerUp = YES;
-        }
-    }];
+    } completion:nil];
 }
 
 - (void)didReceiveMemoryWarning

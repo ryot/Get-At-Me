@@ -65,10 +65,10 @@
                                             <action selector="cameraButtonPressed:" destination="vXZ-lx-hvc" id="s3c-pk-k1L"/>
                                         </connections>
                                     </barButtonItem>
-                                    <barButtonItem width="9" style="plain" systemItem="fixedSpace" id="HeN-FR-cKv"/>
+                                    <barButtonItem width="8" style="plain" systemItem="fixedSpace" id="HeN-FR-cKv"/>
                                     <barButtonItem style="plain" id="p1j-tr-GF3">
                                         <segmentedControl key="customView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="bar" selectedSegmentIndex="0" id="zt3-J6-ywK">
-                                            <rect key="frame" x="60" y="3" width="133" height="38"/>
+                                            <rect key="frame" x="59" y="3" width="133" height="38"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                             <segments>
                                                 <segment title="Map"/>
@@ -80,26 +80,12 @@
                                             </connections>
                                         </segmentedControl>
                                     </barButtonItem>
-                                    <barButtonItem width="9" style="plain" systemItem="fixedSpace" id="8RE-KN-eky"/>
-                                    <barButtonItem title="Item" style="plain" id="03j-XD-566">
-                                        <button key="customView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" hasAttributedTitle="YES" id="uxg-lZ-0pT">
-                                            <rect key="frame" x="212" y="4" width="95" height="36"/>
-                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                            <state key="normal">
-                                                <attributedString key="attributedTitle">
-                                                    <fragment content="Get At Me!">
-                                                        <attributes>
-                                                            <color key="NSColor" red="1" green="0.57347453749999999" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
-                                                            <font key="NSFont" size="17" name="AvenirNext-Bold"/>
-                                                            <paragraphStyle key="NSParagraphStyle" alignment="natural" lineBreakMode="wordWrapping" baseWritingDirection="natural"/>
-                                                        </attributes>
-                                                    </fragment>
-                                                </attributedString>
-                                            </state>
-                                            <connections>
-                                                <action selector="getAtMePressed:" destination="vXZ-lx-hvc" eventType="touchUpInside" id="Gae-Br-QFS"/>
-                                            </connections>
-                                        </button>
+                                    <barButtonItem width="8" style="plain" systemItem="fixedSpace" id="8RE-KN-eky"/>
+                                    <barButtonItem title="Get At Me!" style="plain" id="fH7-IN-M6o">
+                                        <color key="tintColor" red="1" green="0.57347453749999999" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                        <connections>
+                                            <action selector="getAtMePressed:" destination="vXZ-lx-hvc" id="I5e-M7-2Fq"/>
+                                        </connections>
                                     </barButtonItem>
                                 </items>
                             </toolbar>
