@@ -10,14 +10,14 @@
 #import <MapKit/MapKit.h>
 #import <MessageUI/MessageUI.h>
 #import <MobileCoreServices/MobileCoreServices.h>
+#import <iAd/iAd.h>
 #import "RTPerspectiveButton.h"
 #import "RTResetCameraButton.h"
 
-@interface RTMapViewController () <MKMapViewDelegate, CLLocationManagerDelegate, MFMessageComposeViewControllerDelegate>
+@interface RTMapViewController () <MKMapViewDelegate, CLLocationManagerDelegate, MFMessageComposeViewControllerDelegate, ADBannerViewDelegate>
 
 @property (weak, nonatomic) IBOutlet UIView *popupView;
 @property (strong, nonatomic) UIView *snapshot;
-
 @property (nonatomic) BOOL firstZoomAnimationDone;
 @property (weak, nonatomic) IBOutlet MKMapView *appleMapView;
 @property (nonatomic, strong) CLLocationManager *locManager;
@@ -29,10 +29,30 @@
 @property (weak, nonatomic) IBOutlet UILabel *mapSnapDescriptionLabel;
 @property (weak, nonatomic) IBOutlet RTResetCameraButton *resetCameraButton;
 @property (weak, nonatomic) IBOutlet RTPerspectiveButton *perspectiveButton;
+@property (weak, nonatomic) IBOutlet ADBannerView *iAdBanner;
 @property (nonatomic) BOOL mapIs3D;
+@property (nonatomic) BOOL adBannerUp;
 
-#define POPUP_SHOW_FRAME CGRectMake(0, [[UIScreen mainScreen] bounds].size.height - 259, 230, 165)
-#define POPUP_HIDE_FRAME CGRectMake(0, [[UIScreen mainScreen] bounds].size.height - 94, 1, 1)
+#define POPUP_SHOW_FRAME_AD_SHOW CGRectMake(0, [[UIScreen mainScreen] bounds].size.height - 259.0, 230, 165)
+#define POPUP_HIDE_FRAME_AD_SHOW CGRectMake(0, [[UIScreen mainScreen] bounds].size.height - 94.0, 1, 1)
+#define POPUP_SHOW_FRAME_AD_HIDE CGRectMake(0, [[UIScreen mainScreen] bounds].size.height - 209.0, 230, 165)
+#define POPUP_HIDE_FRAME_AD_HIDE CGRectMake(0, [[UIScreen mainScreen] bounds].size.height - 44.0, 1, 1)
+
+#define TOOLBAR_AD_HIDE CGRectMake(0, [[UIScreen mainScreen] bounds].size.height - 44.0, [[UIScreen mainScreen] bounds].size.width, 44)
+#define TOOLBAR_AD_SHOW CGRectMake(0, [[UIScreen mainScreen] bounds].size.height - 94.0, [[UIScreen mainScreen] bounds].size.width, 44)
+
+#define RESET_CAMERA_BUTTON_AD_SHOW CGRectMake([[UIScreen mainScreen] bounds].size.width - 58.0, [[UIScreen mainScreen] bounds].size.height - 152.0, 58, 58)
+#define RESET_CAMERA_BUTTON_AD_HIDE CGRectMake([[UIScreen mainScreen] bounds].size.width - 58.0, [[UIScreen mainScreen] bounds].size.height - 102.0, 58, 58)
+
+#define PERSPECTIVE_BUTTON_AD_SHOW CGRectMake([[UIScreen mainScreen] bounds].size.width - 58.0, [[UIScreen mainScreen] bounds].size.height - 210.0, 58, 58)
+#define PERSPECTIVE_BUTTON_AD_HIDE CGRectMake([[UIScreen mainScreen] bounds].size.width - 58.0, [[UIScreen mainScreen] bounds].size.height - 160.0, 58, 58)
+
+#define APPLE_MAP_AD_SHOW CGRectMake(0, 0, [[UIScreen mainScreen] bounds].size.width, [[UIScreen mainScreen] bounds].size.height - 94.0)
+#define APPLE_MAP_AD_HIDE CGRectMake(0, 0, [[UIScreen mainScreen] bounds].size.width, [[UIScreen mainScreen] bounds].size.height - 44.0)
+
+#define AD_OFFSCREEN CGRectMake(0, [[UIScreen mainScreen] bounds].size.height, 320, 50)
+#define AD_ONSCREEN CGRectMake(0, [[UIScreen mainScreen] bounds].size.height - 50.0, 320, 50)
+
 
 @end
 
@@ -41,13 +61,15 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    NSLog(@"%f", [[UIScreen mainScreen] bounds].size.height );
     
+    self.canDisplayBannerAds = YES; //this inserts an iad view container above self.view, so use self.originalContentView from now on instead of self.view
+    
+    //set user settings
     _mapSnapSwitch.on = [[NSUserDefaults standardUserDefaults] boolForKey:@"mapSnapSwitchState"];
-    _perspectiveButton.toggled = [[NSUserDefaults standardUserDefaults] boolForKey:@"threeDimensionsButtonState"];
-    
     if (_appleMapView.isPitchEnabled) {
         _mapIs3D = YES;
-        _perspectiveButton.toggled = YES;
+        _perspectiveButton.toggled = [[NSUserDefaults standardUserDefaults] boolForKey:@"threeDeeButtonState"];
         [_perspectiveButton setNeedsDisplay];
     } else {
         _mapIs3D = NO;
@@ -68,14 +90,23 @@
     _locManager.delegate = self;
     [_locManager startUpdatingLocation];
     
-    [self.view bringSubviewToFront:_toolbar];
-    
+    //configure views for pre-ad load state - ad banner and everything else will move up onto screen when banner ad loads
+    _iAdBanner.frame = AD_OFFSCREEN;
+    _appleMapView.frame = APPLE_MAP_AD_HIDE;
+    _perspectiveButton.frame = PERSPECTIVE_BUTTON_AD_HIDE;
+    _resetCameraButton.frame = RESET_CAMERA_BUTTON_AD_HIDE;
+    _toolbar.frame = TOOLBAR_AD_HIDE;
+    _popupView.frame = POPUP_SHOW_FRAME_AD_HIDE;
+    [self.view setNeedsLayout];
+
     _snapshot = [_popupView snapshotViewAfterScreenUpdates:YES];
-    [self.view addSubview:_snapshot];
-    [self.view bringSubviewToFront:_snapshot];
-    _snapshot.frame = POPUP_HIDE_FRAME;
+    _snapshot.frame = _popupView.frame;
+    [self.originalContentView addSubview:_snapshot];
+    [self.originalContentView bringSubviewToFront:_snapshot];
+    _snapshot.frame = POPUP_HIDE_FRAME_AD_HIDE;
     _popupView.hidden = YES;
     _snapshot.hidden = YES;
+    [self.originalContentView layoutIfNeeded];
 }
 
 #pragma Visual presentation
@@ -92,9 +123,9 @@
 {
     _popupButton.enabled = NO;
     _snapshot.hidden = NO;
-    [self.view bringSubviewToFront:_snapshot];
-    [UIView animateWithDuration:0.3 animations:^{
-        _snapshot.frame = POPUP_SHOW_FRAME;
+    //[self.originalContentView bringSubviewToFront:_snapshot];
+    [UIView animateWithDuration:0.3 delay:0.0 options:UIViewAnimationOptionCurveEaseInOut animations:^{
+        _snapshot.frame = _popupView.frame;
     } completion:^(BOOL finished) {
         if (finished) {
             _popupView.hidden = NO;
@@ -108,12 +139,17 @@
 {
     _popupButton.enabled = NO;
     _snapshot = [_popupView snapshotViewAfterScreenUpdates:NO];
-    _snapshot.frame = POPUP_SHOW_FRAME;
-    [self.view addSubview:_snapshot];
-    [self.view bringSubviewToFront:_snapshot];
+    _snapshot.frame = _popupView.frame;
+    [self.originalContentView addSubview:_snapshot];
+    [self.originalContentView bringSubviewToFront:_snapshot];
+    [self.originalContentView bringSubviewToFront:_toolbar];
     _popupView.hidden = YES;
-    [UIView animateWithDuration:0.3 animations:^{
-        _snapshot.frame = POPUP_HIDE_FRAME;
+    [UIView animateWithDuration:0.3 delay:0.0 options:UIViewAnimationOptionCurveEaseInOut animations:^{
+        if (_adBannerUp) {
+            _snapshot.frame = POPUP_HIDE_FRAME_AD_SHOW;
+        } else {
+            _snapshot.frame = POPUP_HIDE_FRAME_AD_HIDE;
+        }
     } completion:^(BOOL finished) {
         if (finished) {
             _snapshot.hidden = YES;
@@ -125,30 +161,41 @@
 - (IBAction)mapTypeChanged:(UISegmentedControl *)sender {
     sender.enabled = NO;
     _resetCameraButton.enabled = NO;
-    MKMapCamera *newCam = [MKMapCamera cameraLookingAtCenterCoordinate:_myCurrentLoc.coordinate fromEyeCoordinate:_myCurrentLoc.coordinate eyeAltitude:2000];
+    if (!_popupView.hidden) {
+        [self popupHide];
+    }
+    MKMapCamera *newCam = [MKMapCamera cameraLookingAtCenterCoordinate:_myCurrentLoc.coordinate fromEyeCoordinate:_myCurrentLoc.coordinate eyeAltitude:1800];
     if (sender.selectedSegmentIndex == 0) {
         _appleMapView.mapType = MKMapTypeStandard;
         if (_appleMapView.isPitchEnabled && _mapIs3D) {
             newCam = [MKMapCamera cameraLookingAtCenterCoordinate:_myCurrentLoc.coordinate fromEyeCoordinate:CLLocationCoordinate2DMake(_myCurrentLoc.coordinate.latitude - 0.006, _myCurrentLoc.coordinate.longitude + 0.003) eyeAltitude:30];
         }
-        _perspectiveButton.frame = CGRectMake(340, _perspectiveButton.frame.origin.y, _perspectiveButton.frame.size.width, _perspectiveButton.frame.size.height);
-        _perspectiveButton.hidden = NO;
-        [UIView animateWithDuration:1.0 animations:^{
+        if (_appleMapView.isPitchEnabled) {
+            _perspectiveButton.frame = CGRectMake(340, _perspectiveButton.frame.origin.y, _perspectiveButton.frame.size.width, _perspectiveButton.frame.size.height);
+            _perspectiveButton.hidden = NO;
+        }
+        [UIView animateWithDuration:1.0 delay:0.0 options:UIViewAnimationOptionCurveEaseInOut animations:^{
             _appleMapView.camera = newCam;
-            _perspectiveButton.frame = CGRectMake(260, _perspectiveButton.frame.origin.y, _perspectiveButton.frame.size.width, _perspectiveButton.frame.size.height);
+            if (_appleMapView.isPitchEnabled) {
+                _perspectiveButton.frame = CGRectMake(260, _perspectiveButton.frame.origin.y, _perspectiveButton.frame.size.width, _perspectiveButton.frame.size.height);
+            }
         } completion:^(BOOL finished) {
             sender.enabled = YES;
             _resetCameraButton.enabled = YES;
         }];
     } else if (sender.selectedSegmentIndex == 1) {
-        [UIView animateWithDuration:1.0 animations:^{
+        [UIView animateWithDuration:1.0 delay:0.0 options:UIViewAnimationOptionCurveEaseInOut animations:^{
             _appleMapView.camera = newCam;
-            _perspectiveButton.frame = CGRectMake(340, _perspectiveButton.frame.origin.y, _perspectiveButton.frame.size.width, _perspectiveButton.frame.size.height);
+            if (_appleMapView.isPitchEnabled) {
+                _perspectiveButton.frame = CGRectMake(340, _perspectiveButton.frame.origin.y, _perspectiveButton.frame.size.width, _perspectiveButton.frame.size.height);
+            }
         } completion:^(BOOL finished) {
             _appleMapView.mapType = MKMapTypeHybrid;
             sender.enabled = YES;
             _resetCameraButton.enabled = YES;
-            _perspectiveButton.hidden = YES;
+            if (_appleMapView.isPitchEnabled) {
+                _perspectiveButton.hidden = YES;
+            }
         }];
     }
 }
@@ -159,7 +206,7 @@
         _mapIs3D = newDimension;
         NSOperationQueue *queue = [NSOperationQueue new];
         if (_mapIs3D) {
-            [UIView animateWithDuration:0.7 animations:^{
+            [UIView animateWithDuration:0.7 delay:0.0 options:UIViewAnimationOptionCurveEaseInOut animations:^{
                 _appleMapView.camera = [MKMapCamera cameraLookingAtCenterCoordinate:_myCurrentLoc.coordinate fromEyeCoordinate:_myCurrentLoc.coordinate eyeAltitude:700];
             } completion:^(BOOL finished) {
                 [queue addOperationWithBlock:^{
@@ -172,14 +219,14 @@
                 }];
             }];
         } else {
-            [UIView animateWithDuration:0.7 animations:^{
+            [UIView animateWithDuration:0.7 delay:0.0 options:UIViewAnimationOptionCurveEaseInOut animations:^{
                 _appleMapView.camera = [MKMapCamera cameraLookingAtCenterCoordinate:_myCurrentLoc.coordinate fromEyeCoordinate:_myCurrentLoc.coordinate eyeAltitude:700];
             } completion:^(BOOL finished) {
                 [queue addOperationWithBlock:^{
                     usleep(250000);
                     [[NSOperationQueue mainQueue] addOperationWithBlock:^{
                         [UIView animateWithDuration:0.7 animations:^{
-                            _appleMapView.camera = [MKMapCamera cameraLookingAtCenterCoordinate:_myCurrentLoc.coordinate fromEyeCoordinate:_myCurrentLoc.coordinate eyeAltitude:2000];
+                            _appleMapView.camera = [MKMapCamera cameraLookingAtCenterCoordinate:_myCurrentLoc.coordinate fromEyeCoordinate:_myCurrentLoc.coordinate eyeAltitude:1800];
                         }];
                     }];
                 }];
@@ -191,7 +238,7 @@
 -(void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
     for (UITouch *touch in touches) {
-        if (![[self.view hitTest:[touch locationInView:self.view] withEvent:event] isEqual:_popupView] && !_popupView.isHidden) {
+        if (![[self.originalContentView hitTest:[touch locationInView:self.originalContentView] withEvent:event] isEqual:_popupView] && !_popupView.isHidden) {
             [self popupHide];
             break;
         }
@@ -199,7 +246,7 @@
 }
 
 - (IBAction)perspectiveButtonPressed:(id)sender {
-    if (_mapIs3D) {
+    if (_perspectiveButton.toggled) {
         _perspectiveButton.toggled = NO;
         [self changeMapDimensionsWith3DState:NO];
     } else {
@@ -207,12 +254,12 @@
         [self changeMapDimensionsWith3DState:YES];
     }
     [_perspectiveButton setNeedsDisplay];
-    [UIView transitionWithView:_perspectiveButton duration:0.1 options:UIViewAnimationOptionTransitionCrossDissolve animations:^{
+    [UIView transitionWithView:_perspectiveButton duration:0.18 options:UIViewAnimationOptionTransitionCrossDissolve animations:^{
         [_perspectiveButton.layer displayIfNeeded];
-    } completion:nil];
-    [[NSUserDefaults standardUserDefaults] setBool:_perspectiveButton.toggled forKey:@"threeDimensionsButtonState"];
-    [[NSUserDefaults standardUserDefaults] synchronize];
-
+    } completion:^(BOOL finished) {
+        [[NSUserDefaults standardUserDefaults] setBool:_perspectiveButton.toggled forKey:@"threeDeeButtonState"];
+        [[NSUserDefaults standardUserDefaults] synchronize];
+    }];
 }
 
 #pragma Location updating
@@ -237,12 +284,12 @@
 {
     _resetCameraButton.pressed = YES;
     [_resetCameraButton setNeedsDisplay];
-    [UIView transitionWithView:_resetCameraButton duration:0.1 options:UIViewAnimationOptionTransitionCrossDissolve animations:^{
+    [UIView transitionWithView:_resetCameraButton duration:0.15 options:UIViewAnimationOptionTransitionCrossDissolve animations:^{
         [_perspectiveButton.layer displayIfNeeded];
     } completion:^(BOOL finished) {
         _resetCameraButton.pressed = NO;
         [_resetCameraButton setNeedsDisplay];
-        [UIView transitionWithView:_resetCameraButton duration:1.0 options:UIViewAnimationOptionTransitionCrossDissolve animations:^{
+        [UIView transitionWithView:_resetCameraButton duration:0.85 options:UIViewAnimationOptionTransitionCrossDissolve animations:^{
             [_perspectiveButton.layer displayIfNeeded];
         } completion:nil];
     }];
@@ -256,9 +303,8 @@
 
 -(void)resetMapCameraWithDuration:(CGFloat)duration completion:(void (^)(void))completion
 {
-    
     if (_appleMapView.isPitchEnabled && _mapIs3D && _appleMapView.mapType != MKMapTypeHybrid) {
-        [UIView animateWithDuration:duration animations:^{
+        [UIView animateWithDuration:duration delay:0.0 options:UIViewAnimationOptionCurveEaseInOut animations:^{
             _appleMapView.camera = [MKMapCamera cameraLookingAtCenterCoordinate:_myCurrentLoc.coordinate fromEyeCoordinate:CLLocationCoordinate2DMake(_myCurrentLoc.coordinate.latitude - 0.006, _myCurrentLoc.coordinate.longitude + 0.003) eyeAltitude:30];
         } completion:^(BOOL finished) {
             if (completion) {
@@ -266,8 +312,8 @@
             }
         }];
     } else {
-        [UIView animateWithDuration:duration animations:^{
-            _appleMapView.camera = [MKMapCamera cameraLookingAtCenterCoordinate:_myCurrentLoc.coordinate fromEyeCoordinate:_myCurrentLoc.coordinate eyeAltitude:700];
+        [UIView animateWithDuration:duration delay:0.0 options:UIViewAnimationOptionCurveEaseInOut animations:^{
+            _appleMapView.camera = [MKMapCamera cameraLookingAtCenterCoordinate:_myCurrentLoc.coordinate fromEyeCoordinate:_myCurrentLoc.coordinate eyeAltitude:1800];
         } completion:^(BOOL finished) {
             if (completion) {
                 _firstZoomAnimationDone = YES;
@@ -299,7 +345,7 @@
     NSString *googleMapsAppURLEnd = [NSString stringWithFormat:@"%g+%g", _myCurrentLoc.coordinate.latitude, _myCurrentLoc.coordinate.longitude];
     NSString *googleMapsAppURL = [googleMapsAppURLBase stringByAppendingString:googleMapsAppURLEnd];
     
-    NSString *message = [NSString stringWithFormat:@"Get At Me!\nApple Maps (iOS): %@\n\nGoogle Maps App (Any): %@", appleMapsURL, googleMapsAppURL];
+    NSString *message = [NSString stringWithFormat:@"Get At Me!\nApple Maps (iOS/Android): %@\n\nGoogle Maps (iOS): %@", appleMapsURL, googleMapsAppURL];
     
     MFMessageComposeViewController *messageController = [MFMessageComposeViewController new];
     messageController.messageComposeDelegate = self;
@@ -327,20 +373,78 @@
     }];
 }
 - (IBAction)mapSnapSwitchToggled:(id)sender {
-    [[NSUserDefaults standardUserDefaults] setBool:_mapSnapSwitch.isOn forKey:@"threeDimensionsButtonState"];
+    [[NSUserDefaults standardUserDefaults] setBool:_mapSnapSwitch.isOn forKey:@"mapSnapSwitchState"];
     [[NSUserDefaults standardUserDefaults] synchronize];
 }
 
 -(void)viewWillDisappear:(BOOL)animated
 {
     [_locManager stopUpdatingLocation];
+    [_iAdBanner removeFromSuperview];
+    _iAdBanner.delegate = nil;
+    [self.originalContentView layoutIfNeeded];
     [super viewWillDisappear:animated];
 }
 
 -(void)viewWillAppear:(BOOL)animated
 {
     [_locManager startUpdatingLocation];
+    [self.originalContentView addSubview:_iAdBanner];
+    _iAdBanner.delegate = self;
+    [self.originalContentView layoutIfNeeded];
     [super viewWillAppear:animated];
+}
+
+#pragma iAd
+
+-(void)bannerViewDidLoadAd:(ADBannerView *)banner
+{
+    NSLog(@"DID LOAD AD");
+    if (!_adBannerUp) {
+        [self showAd];
+    }
+}
+
+-(void)bannerView:(ADBannerView *)banner didFailToReceiveAdWithError:(NSError *)error
+{
+    NSLog(@"DID FAIL TO RECEIVE AD %@", error);
+    if (_adBannerUp) {
+        [self hideAd];
+    }
+}
+
+-(void)hideAd
+{
+    _adBannerUp = NO;
+    [UIView animateWithDuration:0.6 delay:0.0 options:UIViewAnimationOptionCurveEaseInOut animations:^{
+        _iAdBanner.frame = AD_OFFSCREEN;
+        _appleMapView.frame = APPLE_MAP_AD_HIDE;
+        _toolbar.frame = TOOLBAR_AD_HIDE;
+        _resetCameraButton.frame = RESET_CAMERA_BUTTON_AD_HIDE;
+        _perspectiveButton.frame = PERSPECTIVE_BUTTON_AD_HIDE;
+        _popupView.frame = POPUP_SHOW_FRAME_AD_HIDE;
+    } completion:^(BOOL finished) {
+        if (finished) {
+            _adBannerUp = NO;
+        }
+    }];
+}
+
+-(void)showAd
+{
+    _adBannerUp = YES;
+    [UIView animateWithDuration:0.6 delay:0.0 options:UIViewAnimationOptionCurveEaseInOut animations:^{
+        _iAdBanner.frame = AD_ONSCREEN;
+        _appleMapView.frame = APPLE_MAP_AD_SHOW;
+        _toolbar.frame = TOOLBAR_AD_SHOW;
+        _resetCameraButton.frame = RESET_CAMERA_BUTTON_AD_SHOW;
+        _perspectiveButton.frame = PERSPECTIVE_BUTTON_AD_SHOW;
+        _popupView.frame = POPUP_SHOW_FRAME_AD_SHOW;
+    } completion:^(BOOL finished) {
+        if (finished) {
+            _adBannerUp = YES;
+        }
+    }];
 }
 
 - (void)didReceiveMemoryWarning

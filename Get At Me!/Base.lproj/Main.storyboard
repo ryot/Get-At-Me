@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="5056" systemVersion="13C1021" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" initialViewController="vXZ-lx-hvc">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="5056" systemVersion="13C1021" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" initialViewController="vXZ-lx-hvc">
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="3733"/>
     </dependencies>
@@ -8,36 +8,29 @@
         <scene sceneID="ufC-wZ-h7g">
             <objects>
                 <viewController storyboardIdentifier="mapVC" id="vXZ-lx-hvc" customClass="RTMapViewController" sceneMemberID="viewController">
-                    <layoutGuides>
-                        <viewControllerLayoutGuide type="top" id="jyV-Pf-zRb"/>
-                        <viewControllerLayoutGuide type="bottom" id="2fi-mo-0CV"/>
-                    </layoutGuides>
                     <view key="view" contentMode="scaleToFill" id="kh9-bI-dsS">
                         <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
-                            <mapView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" mapType="standard" showsUserLocation="YES" translatesAutoresizingMaskIntoConstraints="NO" id="wqo-Wa-7Nc">
+                            <mapView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" mapType="standard" showsUserLocation="YES" id="wqo-Wa-7Nc">
                                 <rect key="frame" x="0.0" y="0.0" width="320" height="474"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                                <constraints>
-                                    <constraint firstAttribute="width" constant="320" id="Icb-2o-eTk"/>
-                                </constraints>
                                 <connections>
                                     <outlet property="delegate" destination="vXZ-lx-hvc" id="SFk-Rg-DwO"/>
                                 </connections>
                             </mapView>
-                            <view opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" translatesAutoresizingMaskIntoConstraints="NO" id="9pm-th-YFS" customClass="RTPopupSettingsView">
+                            <view opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" id="9pm-th-YFS" customClass="RTPopupSettingsView">
                                 <rect key="frame" x="0.0" y="309" width="230" height="165"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <subviews>
-                                    <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Include Map Snap" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Mzq-DK-qCF">
+                                    <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Include Map Snap" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="Mzq-DK-qCF">
                                         <rect key="frame" x="49" y="20" width="143" height="21"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <fontDescription key="fontDescription" type="boldSystem" pointSize="17"/>
                                         <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                         <nil key="highlightedColor"/>
                                     </label>
-                                    <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="GIT-Nb-shm">
+                                    <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" id="GIT-Nb-shm">
                                         <rect key="frame" x="92" y="49" width="51" height="31"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <color key="tintColor" red="0.36326530610000002" green="0.36734693880000002" blue="0.35918367350000002" alpha="1" colorSpace="calibratedRGB"/>
@@ -45,7 +38,7 @@
                                             <action selector="mapSnapSwitchToggled:" destination="vXZ-lx-hvc" eventType="valueChanged" id="jNg-9g-EMf"/>
                                         </connections>
                                     </switch>
-                                    <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="For friends without smartphones. Attaches a ~20kb screenshot of your map view to the message." lineBreakMode="wordWrap" numberOfLines="3" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="202" translatesAutoresizingMaskIntoConstraints="NO" id="wW6-Jq-3FC">
+                                    <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="For friends without smartphones. Attaches a ~20kb screenshot of your map view to the message." lineBreakMode="wordWrap" numberOfLines="3" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="wW6-Jq-3FC">
                                         <rect key="frame" x="20" y="88" width="202" height="47"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="13"/>
@@ -54,29 +47,17 @@
                                     </label>
                                 </subviews>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="165" id="3Gt-RI-HMZ"/>
-                                    <constraint firstAttribute="width" constant="230" id="6Uj-60-Lwq"/>
-                                </constraints>
                             </view>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="5CP-oO-Qq1" userLabel="Reset Camera Button" customClass="RTResetCameraButton">
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="5CP-oO-Qq1" userLabel="Reset Camera Button" customClass="RTResetCameraButton">
                                 <rect key="frame" x="262" y="416" width="58" height="58"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="58" id="sm4-pq-L2o"/>
-                                    <constraint firstAttribute="width" constant="58" id="yaO-D6-Bac"/>
-                                </constraints>
                                 <connections>
                                     <action selector="snapToCurrentLocationPressed:" destination="vXZ-lx-hvc" eventType="touchUpInside" id="kdT-he-MW5"/>
                                 </connections>
                             </button>
-                            <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="af6-KS-zFY">
+                            <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" id="af6-KS-zFY">
                                 <rect key="frame" x="0.0" y="474" width="320" height="44"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="44" id="50X-aI-1Bo"/>
-                                    <constraint firstAttribute="width" constant="320" id="v2w-9v-JUC"/>
-                                </constraints>
                                 <items>
                                     <barButtonItem systemItem="camera" id="1AV-Xy-4Nw">
                                         <color key="tintColor" red="1" green="0.57347453749999999" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
@@ -84,10 +65,10 @@
                                             <action selector="cameraButtonPressed:" destination="vXZ-lx-hvc" id="s3c-pk-k1L"/>
                                         </connections>
                                     </barButtonItem>
-                                    <barButtonItem width="8" style="plain" systemItem="fixedSpace" id="HeN-FR-cKv"/>
+                                    <barButtonItem width="9" style="plain" systemItem="fixedSpace" id="HeN-FR-cKv"/>
                                     <barButtonItem style="plain" id="p1j-tr-GF3">
                                         <segmentedControl key="customView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="bar" selectedSegmentIndex="0" id="zt3-J6-ywK">
-                                            <rect key="frame" x="59" y="3" width="133" height="38"/>
+                                            <rect key="frame" x="60" y="3" width="133" height="38"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                             <segments>
                                                 <segment title="Map"/>
@@ -99,7 +80,7 @@
                                             </connections>
                                         </segmentedControl>
                                     </barButtonItem>
-                                    <barButtonItem width="10" style="plain" systemItem="fixedSpace" id="8RE-KN-eky"/>
+                                    <barButtonItem width="9" style="plain" systemItem="fixedSpace" id="8RE-KN-eky"/>
                                     <barButtonItem title="Item" style="plain" id="03j-XD-566">
                                         <button key="customView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" hasAttributedTitle="YES" id="uxg-lZ-0pT">
                                             <rect key="frame" x="212" y="4" width="95" height="36"/>
@@ -122,21 +103,16 @@
                                     </barButtonItem>
                                 </items>
                             </toolbar>
-                            <adBannerView opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" translatesAutoresizingMaskIntoConstraints="NO" id="2vO-Fz-o0N">
+                            <adBannerView opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" id="2vO-Fz-o0N">
                                 <rect key="frame" x="0.0" y="518" width="320" height="50"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES" flexibleMaxY="YES"/>
-                                <constraints>
-                                    <constraint firstAttribute="width" constant="320" id="O6D-de-M1n"/>
-                                    <constraint firstAttribute="height" constant="50" id="tQH-qP-eS5"/>
-                                </constraints>
+                                <connections>
+                                    <outlet property="delegate" destination="vXZ-lx-hvc" id="edW-Wa-biQ"/>
+                                </connections>
                             </adBannerView>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="tJj-yh-VYg" customClass="RTPerspectiveButton">
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="tJj-yh-VYg" customClass="RTPerspectiveButton">
                                 <rect key="frame" x="262" y="358" width="58" height="58"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="58" id="FzV-CV-DOC"/>
-                                    <constraint firstAttribute="width" constant="58" id="Ugx-aY-nVo"/>
-                                </constraints>
                                 <state key="normal">
                                     <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                                 </state>
@@ -146,24 +122,10 @@
                             </button>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
-                        <constraints>
-                            <constraint firstItem="af6-KS-zFY" firstAttribute="top" secondItem="9pm-th-YFS" secondAttribute="bottom" id="0DS-gO-jad"/>
-                            <constraint firstItem="2vO-Fz-o0N" firstAttribute="top" secondItem="wqo-Wa-7Nc" secondAttribute="bottom" constant="44" id="3up-TK-3GE"/>
-                            <constraint firstItem="2vO-Fz-o0N" firstAttribute="top" secondItem="af6-KS-zFY" secondAttribute="bottom" id="GQ7-A3-8Gp"/>
-                            <constraint firstItem="af6-KS-zFY" firstAttribute="top" secondItem="5CP-oO-Qq1" secondAttribute="bottom" id="HCJ-Rz-TWA"/>
-                            <constraint firstItem="2fi-mo-0CV" firstAttribute="top" secondItem="2vO-Fz-o0N" secondAttribute="bottom" id="Q3W-HM-LY9"/>
-                            <constraint firstAttribute="trailing" secondItem="5CP-oO-Qq1" secondAttribute="trailing" id="QYC-9N-Mop"/>
-                            <constraint firstItem="af6-KS-zFY" firstAttribute="leading" secondItem="kh9-bI-dsS" secondAttribute="leading" id="iy9-Aw-KDL"/>
-                            <constraint firstAttribute="trailing" secondItem="tJj-yh-VYg" secondAttribute="trailing" id="kdX-ov-Hao"/>
-                            <constraint firstItem="wqo-Wa-7Nc" firstAttribute="leading" secondItem="kh9-bI-dsS" secondAttribute="leading" id="msZ-Ez-HmK"/>
-                            <constraint firstItem="wqo-Wa-7Nc" firstAttribute="top" secondItem="kh9-bI-dsS" secondAttribute="top" id="ogj-IJ-wo4"/>
-                            <constraint firstItem="2vO-Fz-o0N" firstAttribute="leading" secondItem="kh9-bI-dsS" secondAttribute="leading" id="ooc-NF-3Gx"/>
-                            <constraint firstItem="5CP-oO-Qq1" firstAttribute="top" secondItem="tJj-yh-VYg" secondAttribute="bottom" id="tmf-GS-jWW"/>
-                            <constraint firstItem="9pm-th-YFS" firstAttribute="leading" secondItem="kh9-bI-dsS" secondAttribute="leading" id="zZl-E5-llr"/>
-                        </constraints>
                     </view>
                     <connections>
                         <outlet property="appleMapView" destination="wqo-Wa-7Nc" id="qTn-p7-a0f"/>
+                        <outlet property="iAdBanner" destination="2vO-Fz-o0N" id="UBq-hU-9cd"/>
                         <outlet property="includeMapSnapLabel" destination="Mzq-DK-qCF" id="JrA-H0-tNV"/>
                         <outlet property="mapSnapDescriptionLabel" destination="wW6-Jq-3FC" id="Sy3-CL-qXP"/>
                         <outlet property="mapSnapSwitch" destination="GIT-Nb-shm" id="6Dy-zN-TPJ"/>

@@ -27,7 +27,7 @@
         
         //// Color Declarations
         UIColor* color9 = [UIColor colorWithRed: 1 green: 0.5 blue: 0 alpha: 1];
-        UIColor* color10 = [UIColor colorWithRed: 1 green: 0.956 blue: 0.914 alpha: 1];
+        UIColor* color10 = [UIColor colorWithRed: 1 green: 0.956 blue: 0.914 alpha: 0.95];
         UIColor *themeColor = [UIColor colorWithRed:0.99 green:0.57 blue:0.15 alpha:1];
         
         //// Shadow Declarations
