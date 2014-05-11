@@ -63,7 +63,7 @@
         CGContextRestoreGState(context);
         
         [themeColor setStroke];
-        roundedRectanglePath.lineWidth = 1;
+        roundedRectanglePath.lineWidth = 2;
         [roundedRectanglePath stroke];
         {
             NSString* textContent = @"3D";
@@ -96,8 +96,6 @@
             [color7 setFill];
             [roundedRectanglePath fill];
             CGContextRestoreGState(context);
-            
-            
             
             //// Text Drawing
             CGRect textRect = CGRectMake(7, 8, 35, 33);

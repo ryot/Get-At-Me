@@ -68,6 +68,7 @@
 		FAB628551914773200A1FD16 /* RTResetCameraButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RTResetCameraButton.m; sourceTree = "<group>"; };
 		FAB628571914796100A1FD16 /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
 		FAB628591914797B00A1FD16 /* iAd.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = iAd.framework; path = System/Library/Frameworks/iAd.framework; sourceTree = SDKROOT; };
+		FAE5B658191D9691005D3DE4 /* RTConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RTConstants.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -133,7 +134,7 @@
 			children = (
 				FAB628261914761200A1FD16 /* RTAppDelegate.h */,
 				FAB628271914761200A1FD16 /* RTAppDelegate.m */,
-				FAA9A23D191B220900759D8C /* DefaultPreferences.plist */,
+				FAE5B652191D94EB005D3DE4 /* Model */,
 				FAB62850191476D500A1FD16 /* Controller */,
 				FAB6284F191476C100A1FD16 /* View */,
 				FAB6282F1914761200A1FD16 /* Images.xcassets */,
@@ -192,6 +193,15 @@
 				FAB6284D191476BA00A1FD16 /* RTMapViewController.m */,
 			);
 			name = Controller;
+			sourceTree = "<group>";
+		};
+		FAE5B652191D94EB005D3DE4 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				FAA9A23D191B220900759D8C /* DefaultPreferences.plist */,
+				FAE5B658191D9691005D3DE4 /* RTConstants.h */,
+			);
+			name = Model;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -432,10 +442,12 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Get At Me!/Get At Me!-Prefix.pch";
 				INFOPLIST_FILE = "Get At Me!/Get At Me!-Info.plist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -446,10 +458,12 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Get At Me!/Get At Me!-Prefix.pch";
 				INFOPLIST_FILE = "Get At Me!/Get At Me!-Info.plist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;

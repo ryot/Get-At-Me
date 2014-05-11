@@ -18,7 +18,8 @@
     [[NSUserDefaults standardUserDefaults] registerDefaults:defaultPrefs];
     
     //set branded uibarbutton appearance
-    [[UIBarButtonItem appearance] setTitleTextAttributes:@{NSFontAttributeName : [UIFont fontWithName:@"AvenirNext-DemiBold" size:19.0]} forState:UIControlStateNormal];
+    [[UIBarButtonItem appearance] setTitleTextAttributes:@{NSFontAttributeName : [UIFont fontWithName:@"AvenirNext-DemiBold" size:20.0]} forState:UIControlStateNormal];
+    
     
     return YES;
 }

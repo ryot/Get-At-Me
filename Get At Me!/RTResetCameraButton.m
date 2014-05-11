@@ -64,7 +64,7 @@
             CGContextRestoreGState(context);
             
             [themeColor setStroke];
-            roundedRectanglePath.lineWidth = 1;
+            roundedRectanglePath.lineWidth = 2;
             [roundedRectanglePath stroke];
             
             //// Bezier Drawing
@@ -78,7 +78,6 @@
             [gradient4Color setFill];
             [bezierPath fill];
         }
-
     } else {
         //// General Declarations
         CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
@@ -123,7 +122,6 @@
             CGContextEndTransparencyLayer(context);
             CGContextRestoreGState(context);
         }
-        
         //// Cleanup
         CGGradientRelease(gradient4);
         CGColorSpaceRelease(colorSpace);
