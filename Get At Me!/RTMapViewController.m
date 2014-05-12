@@ -78,8 +78,12 @@
         [self.originalContentView addSubview:_snapshot];
         [self.originalContentView bringSubviewToFront:_snapshot];
         _snapshot.hidden = YES;
-        _popupView.hidden = YES;
-        [self.originalContentView layoutIfNeeded];
+        if (_mapView.isPitchEnabled) {
+            _popupView.hidden = YES;
+            [self.originalContentView layoutIfNeeded];
+        } else {
+            [self popupHide]; //since iphone 4 is slow and the popupview will be seen post snapshot, might as well animate its hiding and show what the button does
+        }
     }
 }
 
