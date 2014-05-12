@@ -68,7 +68,6 @@
 		FAB628551914773200A1FD16 /* RTResetCameraButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RTResetCameraButton.m; sourceTree = "<group>"; };
 		FAB628571914796100A1FD16 /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
 		FAB628591914797B00A1FD16 /* iAd.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = iAd.framework; path = System/Library/Frameworks/iAd.framework; sourceTree = SDKROOT; };
-		FAE5B658191D9691005D3DE4 /* RTConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RTConstants.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -199,7 +198,6 @@
 			isa = PBXGroup;
 			children = (
 				FAA9A23D191B220900759D8C /* DefaultPreferences.plist */,
-				FAE5B658191D9691005D3DE4 /* RTConstants.h */,
 			);
 			name = Model;
 			sourceTree = "<group>";

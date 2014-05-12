@@ -14,7 +14,7 @@
 #import "RTPerspectiveButton.h"
 #import "RTResetCameraButton.h"
 
-@interface RTMapViewController () <MKMapViewDelegate, MFMessageComposeViewControllerDelegate, ADBannerViewDelegate>
+@interface RTMapViewController () <MKMapViewDelegate, MFMessageComposeViewControllerDelegate>
 
 @property (weak, nonatomic) IBOutlet UIView *popupView;
 @property (weak, nonatomic) IBOutlet MKMapView *mapView;
@@ -28,8 +28,17 @@
 @property (strong, nonatomic) CLLocation *myCurrentLoc;
 @property (strong, nonatomic) UIView *snapshot;
 @property (nonatomic) BOOL firstZoomAnimationDone;
+@property (nonatomic, strong) UIAlertView *locationServicesAlert;
 
 @end
+
+#define POPUP_SHOW_FRAME_AD_SHOW CGRectMake(0, [[UIScreen mainScreen] bounds].size.height - 259.0, 230, 165)
+#define POPUP_HIDE_FRAME_AD_SHOW CGRectMake(15, [[UIScreen mainScreen] bounds].size.height - 94.0, 1, 1)
+#define POPUP_SHOW_FRAME_AD_HIDE CGRectMake(0, [[UIScreen mainScreen] bounds].size.height - 209.0, 230, 165)
+#define POPUP_HIDE_FRAME_AD_HIDE CGRectMake(15, [[UIScreen mainScreen] bounds].size.height - 44.0, 1, 1)
+
+#define MKMapCamera_3D_DEFAULT [MKMapCamera cameraLookingAtCenterCoordinate:_myCurrentLoc.coordinate fromEyeCoordinate:CLLocationCoordinate2DMake(_myCurrentLoc.coordinate.latitude - 0.007, _myCurrentLoc.coordinate.longitude + 0.004) eyeAltitude:130]
+#define MKMapCamera_2D_DEFAULT [MKMapCamera cameraLookingAtCenterCoordinate:_myCurrentLoc.coordinate fromEyeCoordinate:_myCurrentLoc.coordinate eyeAltitude:1500]
 
 @implementation RTMapViewController
 
@@ -37,18 +46,15 @@
 {
     [super viewDidLoad];
     
-    [UIViewController prepareInterstitialAds];
-    self.interstitialPresentationPolicy = ADInterstitialPresentationPolicyManual;
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(applicationDidBecomeActiveNotification) name:UIApplicationDidBecomeActiveNotification object:[UIApplication sharedApplication]];
-    
     self.canDisplayBannerAds = YES; //this inserts an iad view container above self.view, so use self.originalContentView from now on instead of self.view
+    self.interstitialPresentationPolicy = ADInterstitialPresentationPolicyManual;
+        
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(applicationDidBecomeActiveNotification) name:UIApplicationDidBecomeActiveNotification object:[UIApplication sharedApplication]];
     
     //set user settings
     _mapSnapSwitch.on = [[NSUserDefaults standardUserDefaults] boolForKey:@"mapSnapSwitchState"];
     if (_mapView.isPitchEnabled) {
         _perspectiveButton.toggled = [[NSUserDefaults standardUserDefaults] boolForKey:@"threeDeeButtonState"];
-        [_perspectiveButton setNeedsDisplay];
     } else {
         _perspectiveButton.hidden = YES;
     }
@@ -65,13 +71,16 @@
 -(void)viewDidAppear:(BOOL)animated
 {
     [super viewDidAppear:animated];
-    _snapshot = [_popupView snapshotViewAfterScreenUpdates:NO];
-    _snapshot.frame = _popupView.frame;
-    [self.originalContentView addSubview:_snapshot];
-    [self.originalContentView bringSubviewToFront:_snapshot];
-    _snapshot.hidden = YES;
-    _popupView.hidden = YES;
-    [self.originalContentView layoutIfNeeded];
+    if (!_snapshot) {
+        _popupView.hidden = NO;
+        _snapshot = [_popupView snapshotViewAfterScreenUpdates:NO];
+        _snapshot.frame = _popupView.frame;
+        [self.originalContentView addSubview:_snapshot];
+        [self.originalContentView bringSubviewToFront:_snapshot];
+        _snapshot.hidden = YES;
+        _popupView.hidden = YES;
+        [self.originalContentView layoutIfNeeded];
+    }
 }
 
 - (IBAction)cameraButtonPressed:(id)sender {
@@ -143,7 +152,7 @@
             _perspectiveButton.frame = CGRectMake(340, _perspectiveButton.frame.origin.y, _perspectiveButton.frame.size.width, _perspectiveButton.frame.size.height);
             _perspectiveButton.hidden = NO;
         }
-        [UIView animateWithDuration:1.0 delay:0 options:UIViewAnimationOptionCurveEaseIn animations:^{
+        [UIView animateWithDuration:0.6 animations:^{
             _mapView.camera = newCam;
             if (_mapView.isPitchEnabled) {
                 _perspectiveButton.frame = CGRectMake(260, _perspectiveButton.frame.origin.y, _perspectiveButton.frame.size.width, _perspectiveButton.frame.size.height);
@@ -153,7 +162,7 @@
             _resetCameraButton.enabled = YES;
         }];
     } else if (sender.selectedSegmentIndex == 1) {
-        [UIView animateWithDuration:1.0 delay:0 options:UIViewAnimationOptionCurveEaseOut animations:^{
+        [UIView animateWithDuration:0.6 animations:^{
             _mapView.camera = newCam;
             if (_mapView.isPitchEnabled) {
                 _perspectiveButton.frame = CGRectMake(340, _perspectiveButton.frame.origin.y, _perspectiveButton.frame.size.width, _perspectiveButton.frame.size.height);
@@ -187,7 +196,7 @@
                 _mapView.camera = [MKMapCamera cameraLookingAtCenterCoordinate:_myCurrentLoc.coordinate fromEyeCoordinate:_myCurrentLoc.coordinate eyeAltitude:700];
             } completion:^(BOOL finished) {
                 [queue addOperationWithBlock:^{
-                    usleep(240000);
+                    usleep(200000);
                     [[NSOperationQueue mainQueue] addOperationWithBlock:^{
                         [UIView animateWithDuration:0.6 animations:^{
                             _mapView.camera = MKMapCamera_3D_DEFAULT;
@@ -200,7 +209,7 @@
                 _mapView.camera = [MKMapCamera cameraLookingAtCenterCoordinate:_myCurrentLoc.coordinate fromEyeCoordinate:_myCurrentLoc.coordinate eyeAltitude:700];
             } completion:^(BOOL finished) {
                 [queue addOperationWithBlock:^{
-                    usleep(240000);
+                    usleep(200000);
                     [[NSOperationQueue mainQueue] addOperationWithBlock:^{
                         [UIView animateWithDuration:0.6 animations:^{
                             _mapView.camera = MKMapCamera_2D_DEFAULT;
@@ -248,18 +257,29 @@
 {
     _myCurrentLoc = userLocation.location;
     //reset camera to updated position
+    
     if (!_firstZoomAnimationDone) {
-        [self resetMapCameraWithDuration:2.4];
+        if (_mapView.isPitchEnabled) {
+            [self resetMapCameraWithDuration:2.4];
+        } else {
+            [self resetMapCameraWithDuration:0.0];
+        }
     }
+    
 }
+
 
 -(void)mapView:(MKMapView *)mapView didFailToLocateUserWithError:(NSError *)error
 {
-    NSLog(@"%@", error);
+    if (!_locationServicesAlert) {
+        _locationServicesAlert = [[UIAlertView alloc] initWithTitle:@"Location Services Unavailable" message:@"Please check that \"Get At Me!\" is given permission in device Settings > Privacy > Location Services. Rest assured that your location is tracked only while this app is actively on-screen. Until you send off a message the only entities in the universe that know your location because of this app are you, your phone, and Apple's Servers." delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
+        [_locationServicesAlert show];
+    }
 }
 
 - (IBAction)snapToCurrentLocationPressed:(id)sender
 {
+    _locationServicesAlert = nil;
     if (!_popupView.isHidden) {
         [self popupHide];
     }
@@ -276,14 +296,22 @@
     }];
     CLLocation *currentMapCenterLoc = [[CLLocation alloc] initWithCoordinate:_mapView.camera.centerCoordinate altitude:_mapView.camera.altitude horizontalAccuracy:0 verticalAccuracy:0 timestamp:[NSDate date]];
     double coordinateDifference = (double)([_myCurrentLoc distanceFromLocation:currentMapCenterLoc]);
-    double altitudeDifference = abs(_myCurrentLoc.altitude - currentMapCenterLoc.altitude);
+    double altitudeDifference;
+    if (_mapView.isPitchEnabled && _perspectiveButton.toggled && _mapView.mapType == MKMapTypeStandard) {
+        altitudeDifference = abs(438 - currentMapCenterLoc.altitude);
+    } else {
+        altitudeDifference = abs(1500 - currentMapCenterLoc.altitude);
+    }
     double distanceToSnap = coordinateDifference + altitudeDifference;
-    double animateDuration = log(distanceToSnap/300.0);
+    double animateDuration = distanceToSnap/2000;
     if (animateDuration < 0.1) {
         animateDuration = 0.1;
+    } else if (animateDuration < 0.2) {
+        animateDuration = 0.2;
     } else if (animateDuration > 1.5) {
         animateDuration = 1.5;
     }
+    //NSLog(@"Distance %f Seconds %f", distanceToSnap, animateDuration);
     [self resetMapCameraWithDuration:animateDuration];
 }
 
@@ -315,7 +343,11 @@
         [warningAlert show];
         return;
     }
-    
+    if (self.isDisplayingBannerAd) {
+        [UIView animateWithDuration:0.2 animations:^{
+            self.canDisplayBannerAds = NO;
+        }];
+    }
     [self configureAndOpenMessageComposeView];
 }
 
@@ -337,54 +369,61 @@
     messageController.body = message;
     //snapshot map view if switch is toggled
     if (_mapSnapSwitch.isOn && [MFMessageComposeViewController canSendAttachments]) {
-        MKMapSnapshotOptions *options = [MKMapSnapshotOptions new];
-        options.region = _mapView.region;
-        options.size = _mapView.frame.size;
-        if (_mapView.mapType == MKMapTypeStandard) {
-            options.scale = 1.0;
-        } else {
-            options.showsPointsOfInterest = NO;
-            options.scale = 2.0;
-        }
-        options.mapType = _mapView.mapType;
-        options.camera = _mapView.camera;
-        MKMapSnapshotter *snapshotter = [[MKMapSnapshotter alloc] initWithOptions:options];
-        [snapshotter startWithCompletionHandler:^(MKMapSnapshot *snapshot, NSError *error) {
-            if (error) {
-                NSLog(@"[Error] %@", error);
-                return;
+        if (_mapView.isPitchEnabled) { //more rigorous snapshotting for faster devices
+            MKMapSnapshotOptions *options = [MKMapSnapshotOptions new];
+            options.region = _mapView.region;
+            options.size = _mapView.frame.size;
+            if (_mapView.mapType == MKMapTypeStandard) {
+                options.scale = 1.0;
+            } else {
+                options.showsPointsOfInterest = NO;
+                options.scale = 2.0;
             }
-            MKAnnotationView *pin = [[MKPinAnnotationView alloc] initWithAnnotation:nil reuseIdentifier:nil];
-            
-            UIImage *image = snapshot.image;
-            UIGraphicsBeginImageContextWithOptions(image.size, YES, image.scale);
-            {
-                [image drawAtPoint:CGPointMake(0.0f, 0.0f)];
-                CGPoint point = [snapshot pointForCoordinate:_mapView.userLocation.location.coordinate];
-                point.x = point.x + pin.centerOffset.x - (pin.bounds.size.width / 2.0f);
-                point.y = point.y + pin.centerOffset.y - (pin.bounds.size.height / 2.0f);
-                [pin.image drawAtPoint:point];
-                
-                UIImage *compositeImage = UIGraphicsGetImageFromCurrentImageContext();
-                NSData *imageData;
-                if (_mapView.mapType == MKMapTypeStandard) {
-                    imageData = UIImageJPEGRepresentation(compositeImage, 0.5);
-                } else {
-                    imageData = UIImageJPEGRepresentation(compositeImage, 0.5);
+            options.mapType = _mapView.mapType;
+            options.camera = _mapView.camera;
+            MKMapSnapshotter *snapshotter = [[MKMapSnapshotter alloc] initWithOptions:options];
+            [snapshotter startWithCompletionHandler:^(MKMapSnapshot *snapshot, NSError *error) {
+                if (error) {
+                    NSLog(@"[Error] %@", error);
+                    return;
                 }
-                [messageController addAttachmentData:imageData typeIdentifier:(__bridge NSString *)kUTTypeJPEG filename:@"MapSnap.jpeg"];
-            }
+                MKAnnotationView *pin = [[MKPinAnnotationView alloc] initWithAnnotation:nil reuseIdentifier:nil];
+                UIGraphicsBeginImageContextWithOptions(snapshot.image.size, YES, snapshot.image.scale);
+                {
+                    [snapshot.image drawAtPoint:CGPointMake(0.0f, 0.0f)];
+                    CGPoint point = [snapshot pointForCoordinate:_mapView.userLocation.location.coordinate];
+                    point.x = point.x + pin.centerOffset.x - (pin.bounds.size.width / 2.0f);
+                    point.y = point.y + pin.centerOffset.y - (pin.bounds.size.height / 2.0f);
+                    [pin.image drawAtPoint:point];
+                    
+                    UIImage *compositeImage = UIGraphicsGetImageFromCurrentImageContext();
+                    NSData *imageData;
+                    if (_mapView.mapType == MKMapTypeStandard) {
+                        imageData = UIImageJPEGRepresentation(compositeImage, 0.4);
+                    } else {
+                        imageData = UIImageJPEGRepresentation(compositeImage, 0.4);
+                    }
+                    [messageController addAttachmentData:imageData typeIdentifier:(__bridge NSString *)kUTTypeJPEG filename:@"MapSnap.jpeg"];
+                }
+                UIGraphicsEndImageContext();
+                
+                [self presentViewController:messageController animated:YES completion:^{
+                    _mapView.showsUserLocation = NO;
+                }];
+            }];
+        } else { //quick and dirty snapshotting for the iphone 4
+            UIGraphicsBeginImageContext(_mapView.frame.size);
+            [_mapView drawViewHierarchyInRect:_mapView.frame afterScreenUpdates:NO];
+            UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
             UIGraphicsEndImageContext();
-            self.canDisplayBannerAds = NO;
-
+            [messageController addAttachmentData:UIImageJPEGRepresentation(image, 0.5) typeIdentifier:(__bridge NSString *)kUTTypeJPEG filename:@"MapSnap.jpeg"]; //~30kb, still very legible
+            
             [self presentViewController:messageController animated:YES completion:^{
                 _mapView.showsUserLocation = NO;
             }];
-        }];
+        }
     } else {
         // Present message view controller on screen (modal)
-        self.canDisplayBannerAds = NO;
-
         [self presentViewController:messageController animated:YES completion:^{
             _mapView.showsUserLocation = NO;
         }];
@@ -398,18 +437,31 @@
         if (result == MFMailComposeResultFailed) {
             UIAlertView *warningAlert = [[UIAlertView alloc] initWithTitle:@"Error" message:@"Your SMS failed to send! Please try again." delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
             [warningAlert show];
-        } else {
-            [self requestInterstitialAdPresentation];
+        } else { //show interstitial after every other message send (assuming 100% fill rate)
+            if ([[NSUserDefaults standardUserDefaults] boolForKey:@"showInterstitialAd"]) {
+                if ([self requestInterstitialAdPresentation]) {
+                    [[NSUserDefaults standardUserDefaults] setBool:NO forKey:@"showInterstitialAd"];
+                    [[NSUserDefaults standardUserDefaults] synchronize];
+                }
+            } else {
+                [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"showInterstitialAd"];
+                [[NSUserDefaults standardUserDefaults] synchronize];
+            }
         }
-        self.canDisplayBannerAds = YES;
+        if (!self.canDisplayBannerAds) {
+            [UIView animateWithDuration:0.2 animations:^{
+                self.canDisplayBannerAds = YES;
+            }];
+        }
     }];
 }
+
+#pragma Settings
+
 - (IBAction)mapSnapSwitchToggled:(id)sender {
     [[NSUserDefaults standardUserDefaults] setBool:_mapSnapSwitch.isOn forKey:@"mapSnapSwitchState"];
     [[NSUserDefaults standardUserDefaults] synchronize];
 }
-
-#pragma iAd
 
 - (void)didReceiveMemoryWarning
 {

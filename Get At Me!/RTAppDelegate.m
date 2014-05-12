@@ -7,11 +7,14 @@
 //
 
 #import "RTAppDelegate.h"
+#import <iAd/iAd.h>
 
 @implementation RTAppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
+    [UIViewController prepareInterstitialAds];
+    
     //provide default settings via plist registration
     NSURL *defaultPrefsFile = [[NSBundle mainBundle] URLForResource:@"DefaultPreferences" withExtension:@"plist"];
     NSDictionary *defaultPrefs = [NSDictionary dictionaryWithContentsOfURL:defaultPrefsFile];
@@ -44,6 +47,8 @@
 - (void)applicationDidBecomeActive:(UIApplication *)application
 {
     // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
+    [UIViewController prepareInterstitialAds];
+
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application
