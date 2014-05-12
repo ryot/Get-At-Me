@@ -38,7 +38,7 @@
 #define POPUP_HIDE_FRAME_AD_HIDE CGRectMake(15, [[UIScreen mainScreen] bounds].size.height - 44.0, 1, 1)
 
 #define MKMapCamera_3D_DEFAULT [MKMapCamera cameraLookingAtCenterCoordinate:_myCurrentLoc.coordinate fromEyeCoordinate:CLLocationCoordinate2DMake(_myCurrentLoc.coordinate.latitude - 0.007, _myCurrentLoc.coordinate.longitude + 0.004) eyeAltitude:130]
-#define MKMapCamera_2D_DEFAULT [MKMapCamera cameraLookingAtCenterCoordinate:_myCurrentLoc.coordinate fromEyeCoordinate:_myCurrentLoc.coordinate eyeAltitude:1500]
+#define MKMapCamera_2D_DEFAULT [MKMapCamera cameraLookingAtCenterCoordinate:_myCurrentLoc.coordinate fromEyeCoordinate:_myCurrentLoc.coordinate eyeAltitude:1600]
 
 @implementation RTMapViewController
 
@@ -156,7 +156,7 @@
             _perspectiveButton.frame = CGRectMake(340, _perspectiveButton.frame.origin.y, _perspectiveButton.frame.size.width, _perspectiveButton.frame.size.height);
             _perspectiveButton.hidden = NO;
         }
-        [UIView animateWithDuration:0.6 animations:^{
+        [UIView animateWithDuration:0.75 animations:^{
             _mapView.camera = newCam;
             if (_mapView.isPitchEnabled) {
                 _perspectiveButton.frame = CGRectMake(260, _perspectiveButton.frame.origin.y, _perspectiveButton.frame.size.width, _perspectiveButton.frame.size.height);
@@ -166,7 +166,7 @@
             _resetCameraButton.enabled = YES;
         }];
     } else if (sender.selectedSegmentIndex == 1) {
-        [UIView animateWithDuration:0.6 animations:^{
+        [UIView animateWithDuration:0.75 animations:^{
             _mapView.camera = newCam;
             if (_mapView.isPitchEnabled) {
                 _perspectiveButton.frame = CGRectMake(340, _perspectiveButton.frame.origin.y, _perspectiveButton.frame.size.width, _perspectiveButton.frame.size.height);
@@ -196,7 +196,7 @@
         _perspectiveButton.toggled = newState;
         NSOperationQueue *queue = [NSOperationQueue new];
         if (_perspectiveButton.toggled) {
-            [UIView animateWithDuration:0.6 animations:^{
+            [UIView animateWithDuration:0.4 animations:^{
                 _mapView.camera = [MKMapCamera cameraLookingAtCenterCoordinate:_myCurrentLoc.coordinate fromEyeCoordinate:_myCurrentLoc.coordinate eyeAltitude:700];
             } completion:^(BOOL finished) {
                 [queue addOperationWithBlock:^{
@@ -215,7 +215,7 @@
                 [queue addOperationWithBlock:^{
                     usleep(200000);
                     [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-                        [UIView animateWithDuration:0.6 animations:^{
+                        [UIView animateWithDuration:0.4 animations:^{
                             _mapView.camera = MKMapCamera_2D_DEFAULT;
                         }];
                     }];
@@ -304,7 +304,7 @@
     if (_mapView.isPitchEnabled && _perspectiveButton.toggled && _mapView.mapType == MKMapTypeStandard) {
         altitudeDifference = abs(438 - currentMapCenterLoc.altitude);
     } else {
-        altitudeDifference = abs(1500 - currentMapCenterLoc.altitude);
+        altitudeDifference = abs(1600 - currentMapCenterLoc.altitude);
     }
     double distanceToSnap = coordinateDifference + altitudeDifference;
     double animateDuration = distanceToSnap/2000;
@@ -315,7 +315,6 @@
     } else if (animateDuration > 1.5) {
         animateDuration = 1.5;
     }
-    //NSLog(@"Distance %f Seconds %f", distanceToSnap, animateDuration);
     [self resetMapCameraWithDuration:animateDuration];
 }
 
