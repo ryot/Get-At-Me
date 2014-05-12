@@ -98,7 +98,7 @@
                                             </connections>
                                         </segmentedControl>
                                     </barButtonItem>
-                                    <barButtonItem width="8" style="plain" systemItem="fixedSpace" id="8RE-KN-eky"/>
+                                    <barButtonItem width="7" style="plain" systemItem="fixedSpace" id="8RE-KN-eky"/>
                                     <barButtonItem title="Get At Me!" style="plain" id="fH7-IN-M6o">
                                         <color key="tintColor" red="1" green="0.57347453749999999" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                         <connections>

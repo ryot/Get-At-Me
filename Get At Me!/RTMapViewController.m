@@ -55,6 +55,10 @@
     _mapSnapSwitch.on = [[NSUserDefaults standardUserDefaults] boolForKey:@"mapSnapSwitchState"];
     if (_mapView.isPitchEnabled) {
         _perspectiveButton.toggled = [[NSUserDefaults standardUserDefaults] boolForKey:@"threeDeeButtonState"];
+        _perspectiveButton.frame = CGRectMake(340, _perspectiveButton.frame.origin.y, _perspectiveButton.frame.size.width, _perspectiveButton.frame.size.height);
+        [UIView animateWithDuration:1.5 animations:^{
+            _perspectiveButton.frame = CGRectMake(260, _perspectiveButton.frame.origin.y, _perspectiveButton.frame.size.width, _perspectiveButton.frame.size.height);
+        }];
     } else {
         _perspectiveButton.hidden = YES;
     }
@@ -337,7 +341,7 @@
 
 #pragma Location sending
 
-- (IBAction)getAtMePressed:(id)sender {
+- (IBAction)getAtMePressed:(UIBarButtonItem *)sender {
     if (!_popupView.isHidden) {
         [self popupHide];
     }
