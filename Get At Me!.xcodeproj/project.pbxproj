@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		F9E48B70C357428E92117583 /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E76D3E02EA474E96B25795FB /* libPods.a */; };
+		FA0F5DD81924525900D21189 /* RTLayoutView.m in Sources */ = {isa = PBXBuildFile; fileRef = FA0F5DD71924525900D21189 /* RTLayoutView.m */; };
 		FA1BD40C191A03C800F30D5D /* RTPerspectiveButton.m in Sources */ = {isa = PBXBuildFile; fileRef = FA1BD40B191A03C800F30D5D /* RTPerspectiveButton.m */; };
 		FAA9A23E191B220900759D8C /* DefaultPreferences.plist in Resources */ = {isa = PBXBuildFile; fileRef = FAA9A23D191B220900759D8C /* DefaultPreferences.plist */; };
 		FAB628181914761200A1FD16 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FAB628171914761200A1FD16 /* Foundation.framework */; };
@@ -40,6 +42,10 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		A43F6C3B62CD4296BF8E7ED2 /* Pods.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.xcconfig; path = Pods/Pods.xcconfig; sourceTree = "<group>"; };
+		E76D3E02EA474E96B25795FB /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		FA0F5DD61924525900D21189 /* RTLayoutView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RTLayoutView.h; sourceTree = "<group>"; };
+		FA0F5DD71924525900D21189 /* RTLayoutView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RTLayoutView.m; sourceTree = "<group>"; };
 		FA1BD40A191A03C800F30D5D /* RTPerspectiveButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RTPerspectiveButton.h; sourceTree = "<group>"; };
 		FA1BD40B191A03C800F30D5D /* RTPerspectiveButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RTPerspectiveButton.m; sourceTree = "<group>"; };
 		FAA9A23D191B220900759D8C /* DefaultPreferences.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = DefaultPreferences.plist; sourceTree = "<group>"; };
@@ -80,6 +86,7 @@
 				FAB6281C1914761200A1FD16 /* UIKit.framework in Frameworks */,
 				FAB628581914796100A1FD16 /* MapKit.framework in Frameworks */,
 				FAB628181914761200A1FD16 /* Foundation.framework in Frameworks */,
+				F9E48B70C357428E92117583 /* libPods.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -103,6 +110,7 @@
 				FAB6283C1914761200A1FD16 /* Get At Me!Tests */,
 				FAB628161914761200A1FD16 /* Frameworks */,
 				FAB628151914761200A1FD16 /* Products */,
+				A43F6C3B62CD4296BF8E7ED2 /* Pods.xcconfig */,
 			);
 			sourceTree = "<group>";
 		};
@@ -124,6 +132,7 @@
 				FAB628191914761200A1FD16 /* CoreGraphics.framework */,
 				FAB6281B1914761200A1FD16 /* UIKit.framework */,
 				FAB628361914761200A1FD16 /* XCTest.framework */,
+				E76D3E02EA474E96B25795FB /* libPods.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -181,6 +190,8 @@
 				FAB628551914773200A1FD16 /* RTResetCameraButton.m */,
 				FA1BD40A191A03C800F30D5D /* RTPerspectiveButton.h */,
 				FA1BD40B191A03C800F30D5D /* RTPerspectiveButton.m */,
+				FA0F5DD61924525900D21189 /* RTLayoutView.h */,
+				FA0F5DD71924525900D21189 /* RTLayoutView.m */,
 			);
 			name = View;
 			sourceTree = "<group>";
@@ -209,9 +220,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = FAB628461914761200A1FD16 /* Build configuration list for PBXNativeTarget "Get At Me!" */;
 			buildPhases = (
+				858A99AD94A14DD7A9FEA3E0 /* Check Pods Manifest.lock */,
 				FAB628101914761200A1FD16 /* Sources */,
 				FAB628111914761200A1FD16 /* Frameworks */,
 				FAB628121914761200A1FD16 /* Resources */,
+				8EE4BC05FFF348569EC90DB7 /* Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -304,6 +317,39 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		858A99AD94A14DD7A9FEA3E0 /* Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+		8EE4BC05FFF348569EC90DB7 /* Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Pods-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		FAB628101914761200A1FD16 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -311,6 +357,7 @@
 			files = (
 				FAB628281914761200A1FD16 /* RTAppDelegate.m in Sources */,
 				FAB628241914761200A1FD16 /* main.m in Sources */,
+				FA0F5DD81924525900D21189 /* RTLayoutView.m in Sources */,
 				FA1BD40C191A03C800F30D5D /* RTPerspectiveButton.m in Sources */,
 				FAB628531914771100A1FD16 /* RTPopupSettingsView.m in Sources */,
 				FAB6284E191476BA00A1FD16 /* RTMapViewController.m in Sources */,
@@ -436,6 +483,7 @@
 		};
 		FAB628471914761200A1FD16 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = A43F6C3B62CD4296BF8E7ED2 /* Pods.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
@@ -444,6 +492,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Get At Me!/Get At Me!-Prefix.pch";
 				INFOPLIST_FILE = "Get At Me!/Get At Me!-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 7.1;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				WRAPPER_EXTENSION = app;
@@ -452,6 +501,7 @@
 		};
 		FAB628481914761200A1FD16 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = A43F6C3B62CD4296BF8E7ED2 /* Pods.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
@@ -460,6 +510,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Get At Me!/Get At Me!-Prefix.pch";
 				INFOPLIST_FILE = "Get At Me!/Get At Me!-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 7.1;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				WRAPPER_EXTENSION = app;

@@ -13,8 +13,9 @@
 #import <iAd/iAd.h>
 #import "RTPerspectiveButton.h"
 #import "RTResetCameraButton.h"
+#import "RTLayoutView.h"
 
-@interface RTMapViewController () <MKMapViewDelegate, MFMessageComposeViewControllerDelegate>
+@interface RTMapViewController () <MKMapViewDelegate, MFMessageComposeViewControllerDelegate, RTLayoutViewDelegate>
 
 @property (weak, nonatomic) IBOutlet UIView *popupView;
 @property (weak, nonatomic) IBOutlet MKMapView *mapView;
@@ -25,6 +26,8 @@
 @property (weak, nonatomic) IBOutlet UILabel *mapSnapDescriptionLabel;
 @property (weak, nonatomic) IBOutlet RTResetCameraButton *resetCameraButton;
 @property (weak, nonatomic) IBOutlet RTPerspectiveButton *perspectiveButton;
+
+@property (weak, nonatomic) IBOutlet RTLayoutView *layoutView;
 @property (strong, nonatomic) CLLocation *myCurrentLoc;
 @property (strong, nonatomic) UIView *snapshot;
 @property (nonatomic) BOOL firstZoomAnimationDone;
@@ -42,11 +45,14 @@
 
 @implementation RTMapViewController
 
-- (void)viewDidLoad
+-(void)viewDidLoad
 {
     [super viewDidLoad];
     
-    self.canDisplayBannerAds = YES; //this inserts an iad view container above self.view, so use self.originalContentView from now on instead of self.view
+    // Replace the view, before setting up ads for iOS7, so we can get callbacks for viewDidLayoutSubviews; otherwise, we only get viewDidLayoutSubviews callbacks when ad disappears.
+    self.layoutView.delegate = self;
+    
+    //self.canDisplayBannerAds = YES; //this inserts an iad view container above self.view, so use self.originalContentView from now on instead of self.view
     self.interstitialPresentationPolicy = ADInterstitialPresentationPolicyManual;
         
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(applicationDidBecomeActiveNotification) name:UIApplicationDidBecomeActiveNotification object:[UIApplication sharedApplication]];
@@ -75,6 +81,9 @@
 -(void)viewDidAppear:(BOOL)animated
 {
     [super viewDidAppear:animated];
+    
+    self.canDisplayBannerAds = YES;
+    
     if (!_snapshot) {
         _popupView.hidden = NO;
         _snapshot = [_popupView snapshotViewAfterScreenUpdates:NO];
@@ -84,11 +93,25 @@
         _snapshot.hidden = YES;
         if (_mapView.isPitchEnabled) {
             _popupView.hidden = YES;
-            [self.originalContentView layoutIfNeeded];
         } else {
             [self popupHide]; //since iphone 4 is slow and the popupview will be seen post snapshot, might as well animate its hiding and show what the button does
         }
     }
+    //[self.originalContentView setNeedsLayout];
+    //self.canDisplayBannerAds = YES;
+}
+
+// This gets called when the banner ad appears or disappears.
+#pragma - LayoutViewDelegate method
+-(void)layout
+{
+    [self.originalContentView setNeedsDisplay];
+}
+
+-(void)viewWillDisappear:(BOOL)animated
+{
+    [super viewWillDisappear:animated];
+    self.canDisplayBannerAds = NO;
 }
 
 - (IBAction)cameraButtonPressed:(id)sender {
@@ -280,7 +303,7 @@
 -(void)mapView:(MKMapView *)mapView didFailToLocateUserWithError:(NSError *)error
 {
     if (!_locationServicesAlert) {
-        _locationServicesAlert = [[UIAlertView alloc] initWithTitle:@"Location Services Unavailable" message:@"Please check that \"Get At Me!\" is given permission in device Settings > Privacy > Location Services. Rest assured that your location is tracked only while this app is actively on-screen. Until you send off a message the only entities in the universe that know your location because of this app are you, your phone, and Apple's Servers." delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
+        _locationServicesAlert = [[UIAlertView alloc] initWithTitle:@"Location Services Unavailable" message:@"Please check that \"Get At Me!\" is given permission in device Settings > Privacy > Location Services. Your location is tracked only by Apple and only while this app is actively on-screen." delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
         [_locationServicesAlert show];
     }
 }
@@ -350,11 +373,7 @@
         [warningAlert show];
         return;
     }
-    if (self.isDisplayingBannerAd) {
-        [UIView animateWithDuration:0.2 animations:^{
-            self.canDisplayBannerAds = NO;
-        }];
-    }
+
     [self configureAndOpenMessageComposeView];
 }
 
@@ -369,7 +388,7 @@
     NSString *googleMapsAppURLEnd = [NSString stringWithFormat:@"%g+%g", _myCurrentLoc.coordinate.latitude, _myCurrentLoc.coordinate.longitude];
     NSString *googleMapsAppURL = [googleMapsAppURLBase stringByAppendingString:googleMapsAppURLEnd];
     
-    NSString *message = [NSString stringWithFormat:@"Get At Me!\n\nApple Maps (Any Device): %@\n\nGoogle Maps (iOS App): %@", appleMapsURL, googleMapsAppURL];
+    NSString *message = [NSString stringWithFormat:@"Apple Maps (Any Device): %@\n\nGoogle Maps (iOS App): %@", appleMapsURL, googleMapsAppURL];
     
     MFMessageComposeViewController *messageController = [MFMessageComposeViewController new];
     messageController.messageComposeDelegate = self;
@@ -414,9 +433,7 @@
                 }
                 UIGraphicsEndImageContext();
                 
-                [self presentViewController:messageController animated:YES completion:^{
-                    _mapView.showsUserLocation = NO;
-                }];
+                [self presentViewController:messageController animated:YES completion:nil];
             }];
         } else { //quick and dirty snapshotting for the iphone 4
             UIGraphicsBeginImageContext(_mapView.frame.size);
@@ -425,15 +442,11 @@
             UIGraphicsEndImageContext();
             [messageController addAttachmentData:UIImageJPEGRepresentation(image, 0.5) typeIdentifier:(__bridge NSString *)kUTTypeJPEG filename:@"MapSnap.jpeg"]; //~30kb, still very legible
             
-            [self presentViewController:messageController animated:YES completion:^{
-                _mapView.showsUserLocation = NO;
-            }];
+            [self presentViewController:messageController animated:YES completion:nil];
         }
     } else {
         // Present message view controller on screen (modal)
-        [self presentViewController:messageController animated:YES completion:^{
-            _mapView.showsUserLocation = NO;
-        }];
+        [self presentViewController:messageController animated:YES completion:nil];
     }
 }
 
@@ -454,11 +467,6 @@
                 [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"showInterstitialAd"];
                 [[NSUserDefaults standardUserDefaults] synchronize];
             }
-        }
-        if (!self.canDisplayBannerAds) {
-            [UIView animateWithDuration:0.2 animations:^{
-                self.canDisplayBannerAds = YES;
-            }];
         }
     }];
 }

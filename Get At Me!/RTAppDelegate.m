@@ -8,12 +8,17 @@
 
 #import "RTAppDelegate.h"
 #import <iAd/iAd.h>
+#import <UAAppReviewManager.h>
 
 @implementation RTAppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
     [UIViewController prepareInterstitialAds];
+    
+    [UAAppReviewManager setAppID:@"876765421"];
+    [UAAppReviewManager setDaysUntilPrompt:9];
+    [UAAppReviewManager setUsesUntilPrompt:6];
     
     //provide default settings via plist registration
     NSURL *defaultPrefsFile = [[NSBundle mainBundle] URLForResource:@"DefaultPreferences" withExtension:@"plist"];
@@ -23,7 +28,7 @@
     //set branded uibarbutton appearance
     [[UIBarButtonItem appearance] setTitleTextAttributes:@{NSFontAttributeName : [UIFont fontWithName:@"AvenirNext-DemiBold" size:20.0]} forState:UIControlStateNormal];
     
-    
+    [UAAppReviewManager showPromptIfNecessary];
     return YES;
 }
 							
@@ -42,12 +47,14 @@
 - (void)applicationWillEnterForeground:(UIApplication *)application
 {
     // Called as part of the transition from the background to the inactive state; here you can undo many of the changes made on entering the background.
+    [UIViewController prepareInterstitialAds];
+    [UAAppReviewManager showPromptIfNecessary];
+
 }
 
 - (void)applicationDidBecomeActive:(UIApplication *)application
 {
     // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
-    [UIViewController prepareInterstitialAds];
 
 }
 
