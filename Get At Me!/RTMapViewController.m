@@ -29,6 +29,8 @@
 @property (strong, nonatomic) CLLocation *myCurrentLoc;
 @property (strong, nonatomic) UIView *snapshot;
 @property (nonatomic) BOOL firstZoomAnimationDone;
+@property (nonatomic) BOOL appJustEnteredForeground;
+@property (nonatomic) BOOL showBannerAdJustYet;
 @property (nonatomic, strong) UIAlertView *locationServicesAlert;
 
 @end
@@ -47,9 +49,17 @@
 {
     [super viewDidLoad];
     
+    _showBannerAdJustYet = YES;
+    
+    if (![MFMessageComposeViewController canSendAttachments]) {
+        _mapSnapSwitch.on = NO;
+        _mapSnapSwitch.enabled = NO;
+    }
+    
     self.interstitialPresentationPolicy = ADInterstitialPresentationPolicyManual;
         
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(applicationDidBecomeActiveNotification) name:UIApplicationDidBecomeActiveNotification object:[UIApplication sharedApplication]];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appWillEnterForegroundNotification) name:UIApplicationWillEnterForegroundNotification object:[UIApplication sharedApplication]];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appDidEnterBackgroundNotification) name:UIApplicationDidEnterBackgroundNotification object:[UIApplication sharedApplication]];
     
     //set user settings
     _mapSnapSwitch.on = [[NSUserDefaults standardUserDefaults] boolForKey:@"mapSnapSwitchState"];
@@ -67,15 +77,15 @@
     _includeMapSnapLabel.textColor = themeColor;
     _mapSnapSwitch.tintColor = themeColor;
     _mapSnapSwitch.onTintColor = themeColor;
-    
 }
 
-#pragma Visual presentation
+#pragma View transition management and background, foreground events
 
 -(void)viewDidAppear:(BOOL)animated
 {
     [super viewDidAppear:animated];
-    if (!self.presentingFullScreenAd) {
+    
+    if (_showBannerAdJustYet) {
         self.canDisplayBannerAds = YES; //this inserts an iad view container above self.view, so use self.originalContentView from now on instead of self.view
     }
     
@@ -99,6 +109,34 @@
     [super viewWillDisappear:animated];
     self.canDisplayBannerAds = NO;
 }
+
+-(void)viewDidDisappear:(BOOL)animated
+{
+    [super viewDidDisappear:animated];
+    _mapView.showsUserLocation = NO;
+}
+
+-(void)viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+    _mapView.showsUserLocation = YES;
+}
+
+-(void)appWillEnterForegroundNotification
+{
+    _appJustEnteredForeground = YES;
+    _mapView.showsUserLocation = YES;
+    _showBannerAdJustYet = YES;
+    self.canDisplayBannerAds = YES;
+}
+
+-(void)appDidEnterBackgroundNotification
+{
+    _mapView.showsUserLocation = NO;
+    self.canDisplayBannerAds = NO;
+}
+
+#pragma Animation event specifics
 
 - (IBAction)cameraButtonPressed:(id)sender {
     if (_popupView.isHidden) {
@@ -196,13 +234,6 @@
     }
 }
 
--(void)applicationDidBecomeActiveNotification
-{
-    if (_firstZoomAnimationDone) {
-        [self snapToCurrentLocationPressed:nil];
-    }
-}
-
 -(void)changeMapDimensionsWith3DState:(BOOL)newState
 {
     if (_perspectiveButton.toggled != newState) {
@@ -215,14 +246,14 @@
                 [queue addOperationWithBlock:^{
                     usleep(200000);
                     [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-                        [UIView animateWithDuration:0.6 animations:^{
+                        [UIView animateWithDuration:0.5 animations:^{
                             _mapView.camera = MKMapCamera_3D_DEFAULT;
                         }];
                     }];
                 }];
             }];
         } else {
-            [UIView animateWithDuration:0.6 animations:^{
+            [UIView animateWithDuration:0.5 animations:^{
                 _mapView.camera = [MKMapCamera cameraLookingAtCenterCoordinate:_myCurrentLoc.coordinate fromEyeCoordinate:_myCurrentLoc.coordinate eyeAltitude:700];
             } completion:^(BOOL finished) {
                 [queue addOperationWithBlock:^{
@@ -281,8 +312,15 @@
         } else {
             [self resetMapCameraWithDuration:0.0];
         }
+        _firstZoomAnimationDone = YES;
+    } else if (_appJustEnteredForeground) {
+        if (_mapView.isPitchEnabled) {
+            [self resetMapCameraWithDuration:1.2];
+        } else {
+            [self resetMapCameraWithDuration:0.0];
+        }
+        _appJustEnteredForeground = NO;
     }
-    
 }
 
 
@@ -320,11 +358,11 @@
         altitudeDifference = abs(1600 - currentMapCenterLoc.altitude);
     }
     double distanceToSnap = coordinateDifference + altitudeDifference;
-    double animateDuration = distanceToSnap/2000;
-    if (animateDuration < 0.1) {
-        animateDuration = 0.1;
-    } else if (animateDuration < 0.2) {
-        animateDuration = 0.2;
+    double animateDuration = distanceToSnap/2500;
+    if (animateDuration < 0.15) {
+        animateDuration = 0.15;
+    } else if (animateDuration < 0.3) {
+        animateDuration = 0.3;
     } else if (animateDuration > 1.5) {
         animateDuration = 1.5;
     }
@@ -336,14 +374,10 @@
     if (_mapView.isPitchEnabled && _perspectiveButton.toggled && _mapView.mapType == MKMapTypeStandard) {
         [UIView animateWithDuration:duration animations:^{
             _mapView.camera = MKMapCamera_3D_DEFAULT;
-        } completion:^(BOOL finished) {
-            _firstZoomAnimationDone = YES;
         }];
     } else {
         [UIView animateWithDuration:duration animations:^{
             _mapView.camera = MKMapCamera_2D_DEFAULT;
-        } completion:^(BOOL finished) {
-            _firstZoomAnimationDone = YES;
         }];
     }
 }
@@ -359,7 +393,9 @@
         [warningAlert show];
         return;
     }
-
+    
+    _showBannerAdJustYet = NO; //don't show banner ad until potential post-message-compose interstitial is closed
+    
     [self configureAndOpenMessageComposeView];
 }
 
@@ -367,11 +403,11 @@
 {
     //create URLs
     NSString *appleMapsURLBase = @"maps.apple.com/?daddr=";
-    NSString *appleMapsURLEnd = [NSString stringWithFormat:@"%g+%g", _myCurrentLoc.coordinate.latitude, _myCurrentLoc.coordinate.longitude];
+    NSString *appleMapsURLEnd = [NSString stringWithFormat:@"%g,%g", _myCurrentLoc.coordinate.latitude, _myCurrentLoc.coordinate.longitude];
     NSString *appleMapsURL = [appleMapsURLBase stringByAppendingString:appleMapsURLEnd];
     
     NSString *googleMapsAppURLBase = @"comgooglemaps://?daddr=";
-    NSString *googleMapsAppURLEnd = [NSString stringWithFormat:@"%g+%g", _myCurrentLoc.coordinate.latitude, _myCurrentLoc.coordinate.longitude];
+    NSString *googleMapsAppURLEnd = [NSString stringWithFormat:@"%g,%g", _myCurrentLoc.coordinate.latitude, _myCurrentLoc.coordinate.longitude];
     NSString *googleMapsAppURL = [googleMapsAppURLBase stringByAppendingString:googleMapsAppURLEnd];
     
     NSString *message = [NSString stringWithFormat:@"Apple Maps (Any Device): %@\n\nGoogle Maps (iOS App): %@", appleMapsURL, googleMapsAppURL];
@@ -415,7 +451,7 @@
                     } else {
                         imageData = UIImageJPEGRepresentation(compositeImage, 0.4);
                     }
-                    [messageController addAttachmentData:imageData typeIdentifier:(__bridge NSString *)kUTTypeJPEG filename:@"MapSnap.jpeg"];
+                    [messageController addAttachmentData:imageData typeIdentifier:@"public.jpeg" filename:@"mapsnap.jpeg"];
                 }
                 UIGraphicsEndImageContext();
                 
@@ -426,7 +462,7 @@
             [_mapView drawViewHierarchyInRect:_mapView.frame afterScreenUpdates:NO];
             UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
             UIGraphicsEndImageContext();
-            [messageController addAttachmentData:UIImageJPEGRepresentation(image, 0.5) typeIdentifier:(__bridge NSString *)kUTTypeJPEG filename:@"MapSnap.jpeg"]; //~30kb, still very legible
+            [messageController addAttachmentData:UIImageJPEGRepresentation(image, 0.5) typeIdentifier:@"public.jpeg" filename:@"mapsnap.jpeg"]; //~30kb, still very legible
             
             [self presentViewController:messageController animated:YES completion:nil];
         }
@@ -438,25 +474,24 @@
 
 -(void)messageComposeViewController:(MFMessageComposeViewController *)controller didFinishWithResult:(MessageComposeResult)result
 {
-    [controller dismissViewControllerAnimated:YES completion:nil];
-    _mapView.showsUserLocation = YES;
-    if (result == MFMailComposeResultFailed) {
-        UIAlertView *warningAlert = [[UIAlertView alloc] initWithTitle:@"Error" message:@"Your SMS failed to send! Please try again." delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
-        [warningAlert show];
-    } else { //show interstitial after every other message send (assuming 100% fill rate)
-        if ([[NSUserDefaults standardUserDefaults] boolForKey:@"showInterstitialAd"]) {
-            //self.canDisplayBannerAds = NO;
-            if ([self requestInterstitialAdPresentation]) {
-                [[NSUserDefaults standardUserDefaults] setBool:NO forKey:@"showInterstitialAd"];
-                [[NSUserDefaults standardUserDefaults] synchronize];
+    [controller dismissViewControllerAnimated:YES completion:^{
+        if (result == MFMailComposeResultFailed) {
+            UIAlertView *warningAlert = [[UIAlertView alloc] initWithTitle:@"Error" message:@"Your SMS failed to send! Please try again." delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
+            [warningAlert show];
+        } else { //show interstitial after every other message send (assuming 100% fill rate)
+            if ([[NSUserDefaults standardUserDefaults] boolForKey:@"showInterstitialAd"]) {
+                if ([self requestInterstitialAdPresentation]) {
+                    [[NSUserDefaults standardUserDefaults] setBool:NO forKey:@"showInterstitialAd"];
+                    [[NSUserDefaults standardUserDefaults] synchronize];
+                }
             } else {
-                //self.canDisplayBannerAds = YES;
+                [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"showInterstitialAd"];
+                [[NSUserDefaults standardUserDefaults] synchronize];
             }
-        } else {
-            [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"showInterstitialAd"];
-            [[NSUserDefaults standardUserDefaults] synchronize];
         }
-    }
+        _showBannerAdJustYet = YES;
+        self.canDisplayBannerAds = YES;
+    }];
 }
 
 #pragma Settings
