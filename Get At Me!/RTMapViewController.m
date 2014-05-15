@@ -13,9 +13,8 @@
 #import <iAd/iAd.h>
 #import "RTPerspectiveButton.h"
 #import "RTResetCameraButton.h"
-#import "RTLayoutView.h"
 
-@interface RTMapViewController () <MKMapViewDelegate, MFMessageComposeViewControllerDelegate, RTLayoutViewDelegate>
+@interface RTMapViewController () <MKMapViewDelegate, MFMessageComposeViewControllerDelegate>
 
 @property (weak, nonatomic) IBOutlet UIView *popupView;
 @property (weak, nonatomic) IBOutlet MKMapView *mapView;
@@ -27,7 +26,6 @@
 @property (weak, nonatomic) IBOutlet RTResetCameraButton *resetCameraButton;
 @property (weak, nonatomic) IBOutlet RTPerspectiveButton *perspectiveButton;
 
-@property (weak, nonatomic) IBOutlet RTLayoutView *layoutView;
 @property (strong, nonatomic) CLLocation *myCurrentLoc;
 @property (strong, nonatomic) UIView *snapshot;
 @property (nonatomic) BOOL firstZoomAnimationDone;
@@ -49,10 +47,6 @@
 {
     [super viewDidLoad];
     
-    // Replace the view, before setting up ads for iOS7, so we can get callbacks for viewDidLayoutSubviews; otherwise, we only get viewDidLayoutSubviews callbacks when ad disappears.
-    self.layoutView.delegate = self;
-    
-    //self.canDisplayBannerAds = YES; //this inserts an iad view container above self.view, so use self.originalContentView from now on instead of self.view
     self.interstitialPresentationPolicy = ADInterstitialPresentationPolicyManual;
         
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(applicationDidBecomeActiveNotification) name:UIApplicationDidBecomeActiveNotification object:[UIApplication sharedApplication]];
@@ -61,9 +55,9 @@
     _mapSnapSwitch.on = [[NSUserDefaults standardUserDefaults] boolForKey:@"mapSnapSwitchState"];
     if (_mapView.isPitchEnabled) {
         _perspectiveButton.toggled = [[NSUserDefaults standardUserDefaults] boolForKey:@"threeDeeButtonState"];
-        _perspectiveButton.frame = CGRectMake(340, _perspectiveButton.frame.origin.y, _perspectiveButton.frame.size.width, _perspectiveButton.frame.size.height);
+        _perspectiveButton.frame = CGRectMake(330, _perspectiveButton.frame.origin.y, _perspectiveButton.frame.size.width, _perspectiveButton.frame.size.height);
         [UIView animateWithDuration:1.5 animations:^{
-            _perspectiveButton.frame = CGRectMake(260, _perspectiveButton.frame.origin.y, _perspectiveButton.frame.size.width, _perspectiveButton.frame.size.height);
+            _perspectiveButton.frame = CGRectMake(262, _perspectiveButton.frame.origin.y, _perspectiveButton.frame.size.width, _perspectiveButton.frame.size.height);
         }];
     } else {
         _perspectiveButton.hidden = YES;
@@ -81,8 +75,9 @@
 -(void)viewDidAppear:(BOOL)animated
 {
     [super viewDidAppear:animated];
-    
-    self.canDisplayBannerAds = YES;
+    if (!self.presentingFullScreenAd) {
+        self.canDisplayBannerAds = YES; //this inserts an iad view container above self.view, so use self.originalContentView from now on instead of self.view
+    }
     
     if (!_snapshot) {
         _popupView.hidden = NO;
@@ -97,15 +92,6 @@
             [self popupHide]; //since iphone 4 is slow and the popupview will be seen post snapshot, might as well animate its hiding and show what the button does
         }
     }
-    //[self.originalContentView setNeedsLayout];
-    //self.canDisplayBannerAds = YES;
-}
-
-// This gets called when the banner ad appears or disappears.
-#pragma - LayoutViewDelegate method
--(void)layout
-{
-    [self.originalContentView setNeedsDisplay];
 }
 
 -(void)viewWillDisappear:(BOOL)animated
@@ -180,13 +166,13 @@
             newCam = MKMapCamera_3D_DEFAULT;
         }
         if (_mapView.isPitchEnabled) {
-            _perspectiveButton.frame = CGRectMake(340, _perspectiveButton.frame.origin.y, _perspectiveButton.frame.size.width, _perspectiveButton.frame.size.height);
+            _perspectiveButton.frame = CGRectMake(330, _perspectiveButton.frame.origin.y, _perspectiveButton.frame.size.width, _perspectiveButton.frame.size.height);
             _perspectiveButton.hidden = NO;
         }
         [UIView animateWithDuration:0.75 animations:^{
             _mapView.camera = newCam;
             if (_mapView.isPitchEnabled) {
-                _perspectiveButton.frame = CGRectMake(260, _perspectiveButton.frame.origin.y, _perspectiveButton.frame.size.width, _perspectiveButton.frame.size.height);
+                _perspectiveButton.frame = CGRectMake(262, _perspectiveButton.frame.origin.y, _perspectiveButton.frame.size.width, _perspectiveButton.frame.size.height);
             }
         } completion:^(BOOL finished) {
             sender.enabled = YES;
@@ -196,7 +182,7 @@
         [UIView animateWithDuration:0.75 animations:^{
             _mapView.camera = newCam;
             if (_mapView.isPitchEnabled) {
-                _perspectiveButton.frame = CGRectMake(340, _perspectiveButton.frame.origin.y, _perspectiveButton.frame.size.width, _perspectiveButton.frame.size.height);
+                _perspectiveButton.frame = CGRectMake(330, _perspectiveButton.frame.origin.y, _perspectiveButton.frame.size.width, _perspectiveButton.frame.size.height);
             }
         } completion:^(BOOL finished) {
             _mapView.showsPointsOfInterest = NO;
@@ -452,23 +438,25 @@
 
 -(void)messageComposeViewController:(MFMessageComposeViewController *)controller didFinishWithResult:(MessageComposeResult)result
 {
+    [controller dismissViewControllerAnimated:YES completion:nil];
     _mapView.showsUserLocation = YES;
-    [controller dismissViewControllerAnimated:YES completion:^{
-        if (result == MFMailComposeResultFailed) {
-            UIAlertView *warningAlert = [[UIAlertView alloc] initWithTitle:@"Error" message:@"Your SMS failed to send! Please try again." delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
-            [warningAlert show];
-        } else { //show interstitial after every other message send (assuming 100% fill rate)
-            if ([[NSUserDefaults standardUserDefaults] boolForKey:@"showInterstitialAd"]) {
-                if ([self requestInterstitialAdPresentation]) {
-                    [[NSUserDefaults standardUserDefaults] setBool:NO forKey:@"showInterstitialAd"];
-                    [[NSUserDefaults standardUserDefaults] synchronize];
-                }
-            } else {
-                [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"showInterstitialAd"];
+    if (result == MFMailComposeResultFailed) {
+        UIAlertView *warningAlert = [[UIAlertView alloc] initWithTitle:@"Error" message:@"Your SMS failed to send! Please try again." delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
+        [warningAlert show];
+    } else { //show interstitial after every other message send (assuming 100% fill rate)
+        if ([[NSUserDefaults standardUserDefaults] boolForKey:@"showInterstitialAd"]) {
+            //self.canDisplayBannerAds = NO;
+            if ([self requestInterstitialAdPresentation]) {
+                [[NSUserDefaults standardUserDefaults] setBool:NO forKey:@"showInterstitialAd"];
                 [[NSUserDefaults standardUserDefaults] synchronize];
+            } else {
+                //self.canDisplayBannerAds = YES;
             }
+        } else {
+            [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"showInterstitialAd"];
+            [[NSUserDefaults standardUserDefaults] synchronize];
         }
-    }];
+    }
 }
 
 #pragma Settings
