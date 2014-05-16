@@ -50,14 +50,13 @@
     [super viewDidLoad];
     
     _showBannerAdJustYet = YES;
+    self.interstitialPresentationPolicy = ADInterstitialPresentationPolicyManual;
     
     if (![MFMessageComposeViewController canSendAttachments]) {
         _mapSnapSwitch.on = NO;
         _mapSnapSwitch.enabled = NO;
     }
     
-    self.interstitialPresentationPolicy = ADInterstitialPresentationPolicyManual;
-        
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appWillEnterForegroundNotification) name:UIApplicationWillEnterForegroundNotification object:[UIApplication sharedApplication]];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appDidEnterBackgroundNotification) name:UIApplicationDidEnterBackgroundNotification object:[UIApplication sharedApplication]];
     
@@ -99,7 +98,7 @@
         if (_mapView.isPitchEnabled) {
             _popupView.hidden = YES;
         } else {
-            [self popupHide]; //since iphone 4 is slow and the popupview will be seen post snapshot, might as well animate its hiding and show what the button does
+            [self popupHide]; //since iphone 4 popupview will be seen post snapshot, might as well animate its hiding and show what the button does
         }
     }
 }
@@ -240,26 +239,26 @@
         _perspectiveButton.toggled = newState;
         NSOperationQueue *queue = [NSOperationQueue new];
         if (_perspectiveButton.toggled) {
-            [UIView animateWithDuration:0.4 animations:^{
+            [UIView animateWithDuration:0.5 animations:^{
                 _mapView.camera = [MKMapCamera cameraLookingAtCenterCoordinate:_myCurrentLoc.coordinate fromEyeCoordinate:_myCurrentLoc.coordinate eyeAltitude:700];
             } completion:^(BOOL finished) {
                 [queue addOperationWithBlock:^{
-                    usleep(200000);
+                    usleep(175000);
                     [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-                        [UIView animateWithDuration:0.5 animations:^{
+                        [UIView animateWithDuration:0.6 animations:^{
                             _mapView.camera = MKMapCamera_3D_DEFAULT;
                         }];
                     }];
                 }];
             }];
         } else {
-            [UIView animateWithDuration:0.5 animations:^{
+            [UIView animateWithDuration:0.6 animations:^{
                 _mapView.camera = [MKMapCamera cameraLookingAtCenterCoordinate:_myCurrentLoc.coordinate fromEyeCoordinate:_myCurrentLoc.coordinate eyeAltitude:700];
             } completion:^(BOOL finished) {
                 [queue addOperationWithBlock:^{
-                    usleep(200000);
+                    usleep(175000);
                     [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-                        [UIView animateWithDuration:0.4 animations:^{
+                        [UIView animateWithDuration:0.5 animations:^{
                             _mapView.camera = MKMapCamera_2D_DEFAULT;
                         }];
                     }];
@@ -308,14 +307,14 @@
     
     if (!_firstZoomAnimationDone) {
         if (_mapView.isPitchEnabled) {
-            [self resetMapCameraWithDuration:2.4];
+            [self resetMapCameraWithDuration:2.6];
         } else {
             [self resetMapCameraWithDuration:0.0];
         }
         _firstZoomAnimationDone = YES;
     } else if (_appJustEnteredForeground) {
         if (_mapView.isPitchEnabled) {
-            [self resetMapCameraWithDuration:1.2];
+            [self resetMapCameraWithDuration:1.65];
         } else {
             [self resetMapCameraWithDuration:0.0];
         }
@@ -345,7 +344,7 @@
     } completion:^(BOOL finished) {
         _resetCameraButton.pressed = NO;
         [_resetCameraButton setNeedsDisplay];
-        [UIView transitionWithView:_resetCameraButton duration:0.85 options:UIViewAnimationOptionTransitionCrossDissolve animations:^{
+        [UIView transitionWithView:_resetCameraButton duration:0.83 options:UIViewAnimationOptionTransitionCrossDissolve animations:^{
             [_perspectiveButton.layer displayIfNeeded];
         } completion:nil];
     }];
@@ -358,13 +357,13 @@
         altitudeDifference = abs(1600 - currentMapCenterLoc.altitude);
     }
     double distanceToSnap = coordinateDifference + altitudeDifference;
-    double animateDuration = distanceToSnap/2500;
+    double animateDuration = distanceToSnap/2400;
     if (animateDuration < 0.15) {
         animateDuration = 0.15;
     } else if (animateDuration < 0.3) {
         animateDuration = 0.3;
-    } else if (animateDuration > 1.5) {
-        animateDuration = 1.5;
+    } else if (animateDuration > 1.75) {
+        animateDuration = 1.75;
     }
     [self resetMapCameraWithDuration:animateDuration];
 }
@@ -410,7 +409,7 @@
     NSString *googleMapsAppURLEnd = [NSString stringWithFormat:@"%g,%g", _myCurrentLoc.coordinate.latitude, _myCurrentLoc.coordinate.longitude];
     NSString *googleMapsAppURL = [googleMapsAppURLBase stringByAppendingString:googleMapsAppURLEnd];
     
-    NSString *message = [NSString stringWithFormat:@"Apple Maps (Any Device): %@\n\nGoogle Maps (iOS App): %@", appleMapsURL, googleMapsAppURL];
+    NSString *message = [NSString stringWithFormat:@"Get At Me!\n\nApple Maps (Any Device): %@\n\nGoogle Maps (iOS App): %@", appleMapsURL, googleMapsAppURL];
     
     MFMessageComposeViewController *messageController = [MFMessageComposeViewController new];
     messageController.messageComposeDelegate = self;
@@ -447,9 +446,9 @@
                     UIImage *compositeImage = UIGraphicsGetImageFromCurrentImageContext();
                     NSData *imageData;
                     if (_mapView.mapType == MKMapTypeStandard) {
-                        imageData = UIImageJPEGRepresentation(compositeImage, 0.4);
+                        imageData = UIImageJPEGRepresentation(compositeImage, 0.5);
                     } else {
-                        imageData = UIImageJPEGRepresentation(compositeImage, 0.4);
+                        imageData = UIImageJPEGRepresentation(compositeImage, 0.5);
                     }
                     [messageController addAttachmentData:imageData typeIdentifier:@"public.jpeg" filename:@"mapsnap.jpeg"];
                 }

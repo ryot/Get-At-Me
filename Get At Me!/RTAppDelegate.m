@@ -18,7 +18,7 @@
     
     [UAAppReviewManager setAppID:@"876765421"];
     [UAAppReviewManager setDaysUntilPrompt:9];
-    [UAAppReviewManager setUsesUntilPrompt:6];
+    [UAAppReviewManager setUsesUntilPrompt:5];
     
     //provide default settings via plist registration
     NSURL *defaultPrefsFile = [[NSBundle mainBundle] URLForResource:@"DefaultPreferences" withExtension:@"plist"];
