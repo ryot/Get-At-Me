@@ -1,0 +1,10 @@
+PODS:
+  - UAAppReviewManager (0.2.1)
+
+DEPENDENCIES:
+  - UAAppReviewManager (~> 0.2.1)
+
+SPEC CHECKSUMS:
+  UAAppReviewManager: 5951542f163e9964ce0e5bd6543f512dfc0efd51
+
+COCOAPODS: 0.32.1

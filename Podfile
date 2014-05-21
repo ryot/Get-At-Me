@@ -1,0 +1,1 @@
+pod 'UAAppReviewManager', '~> 0.2.1'
